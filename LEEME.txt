@@ -1,0 +1,51 @@
+QUIZ - Formas de Representar un Algoritmo
+=========================================
+
+No necesita internet. Funciona en cualquier celular o computadora.
+Cada vez que jugas, las preguntas y opciones aparecen en orden distinto.
+
+
+----------------------------------------
+ANDROID  (y computadora)
+----------------------------------------
+1. Descarga el ZIP.
+2. Descomprimilo (toca el zip -> "Extraer" / "Descomprimir").
+3. Abri el archivo "index.html".
+4. Toca "Empezar!" y responde las 4 preguntas.
+
+Si abre y muestra solo texto/codigo:
+- Abri Chrome -> menu (3 puntos) -> NO sirve; mejor toca el index.html
+  desde la app "Archivos" y elegi abrir con Chrome.
+
+
+----------------------------------------
+iPHONE / iPad  (importante)
+----------------------------------------
+En iOS, abrir el HTML desde "Archivos" a veces NO ejecuta el juego
+(muestra la pantalla congelada o solo texto). Si te pasa eso, usa
+este metodo que SI funciona:
+
+OPCION A - rapida (probar primero):
+1. Descarga el ZIP.
+2. Abri la app "Archivos".
+3. Toca el ZIP para descomprimirlo (se crea una carpeta).
+4. Entra a la carpeta y toca "index.html".
+   -> Si el juego arranca y responde a los toques, listo.
+
+OPCION B - la mas confiable (si la A no anda):
+1. Instala gratis la app "Documents" de Readdle (App Store).
+2. Pasa el ZIP a esa app (desde WhatsApp/Archivos: Compartir ->
+   "Guardar en Documents") o descargalo dentro de la app.
+3. Dentro de "Documents", toca el ZIP para descomprimirlo.
+4. Toca "index.html": se abre en el navegador interno de la app
+   y el juego funciona perfecto.
+
+Consejo: girar el telefono NO hace falta; el juego esta pensado
+para pantalla vertical.
+
+
+----------------------------------------
+AL TERMINAR
+----------------------------------------
+Saca una captura de la pantalla final (con tu puntaje) y subila a
+los comentarios de la plataforma.

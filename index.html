@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Quiz: Representar un Algoritmo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --rojo:#e21b3c; --azul:#1368ce; --amar:#d89e00; --verde:#26890c;
+    --bg1:#46178f; --bg2:#7b2ff7;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    color: #fff; min-height: 100dvh;
+    display: flex; flex-direction: column; overflow-x: hidden;
+  }
+  .wrap { flex: 1; display: flex; flex-direction: column; padding: 18px; max-width: 600px; margin: 0 auto; width: 100%; }
+  .screen { display: none; flex: 1; flex-direction: column; animation: fade .25s ease; }
+  .screen.active { display: flex; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+  @keyframes pop { 0%{transform:scale(.6);opacity:0;} 60%{transform:scale(1.15);} 100%{transform:scale(1);opacity:1;} }
+  @keyframes floatUp { from{transform:translateY(0);opacity:1;} to{transform:translateY(-40px);opacity:0;} }
+
+  .center { justify-content: center; align-items: center; text-align: center; gap: 14px; }
+  h1 { font-size: 1.9rem; line-height: 1.15; text-shadow: 0 3px 0 rgba(0,0,0,.25); }
+  .sub { font-size: 1rem; opacity: .9; }
+  .emoji { font-size: 3.4rem; }
+  .btn {
+    background: #fff; color: #46178f; border: none; border-radius: 14px;
+    font-size: 1.15rem; font-weight: 800; padding: 16px 26px; cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s;
+  }
+  .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+
+  .top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 10px; font-size: 1.05rem; }
+  .timer {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,.22); padding: 4px 12px; border-radius: 99px;
+  }
+  .timer.low { background: var(--rojo); animation: pulse .5s infinite alternate; }
+  @keyframes pulse { from{transform:scale(1);} to{transform:scale(1.08);} }
+  .bar { height: 8px; background: rgba(255,255,255,.25); border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
+  .bar > i { display: block; height: 100%; background: #ffd400; width: 100%; }
+
+  .q {
+    background: rgba(255,255,255,.97); color: #1c1c28; border-radius: 16px;
+    padding: 20px 18px; font-size: 1.25rem; font-weight: 800; text-align: center;
+    min-height: 110px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,.2); margin-bottom: 16px; position: relative;
+  }
+  .gain {
+    position: absolute; top: -10px; right: 14px; color: var(--verde);
+    font-weight: 900; font-size: 1.5rem; animation: floatUp 1s ease forwards;
+  }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+  .opt {
+    border: none; border-radius: 12px; color: #fff; font-weight: 800;
+    font-size: 1.05rem; padding: 22px 12px; cursor: pointer; min-height: 78px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 5px 0 rgba(0,0,0,.28); transition: transform .08s, opacity .2s;
+    text-align: center;
+  }
+  .opt:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.28); }
+  .opt .sym { font-size: 1.3rem; }
+  .o0 { background: var(--rojo);} .o1 { background: var(--azul);}
+  .o2 { background: var(--amar);} .o3 { background: var(--verde);}
+  .opts.locked .opt { opacity: .4; }
+  .opts.locked .opt.right { opacity: 1; outline: 4px solid #fff; }
+  .opts.locked .opt.wrong { opacity: 1; outline: 4px solid #fff; filter: grayscale(.3); }
+
+  .feedback { text-align: center; font-size: 1.3rem; font-weight: 800; margin-top: 14px; min-height: 30px; }
+  .hidden { display: none !important; }
+
+  .scorebig { font-size: 3.4rem; font-weight: 900; animation: pop .5s ease; }
+  .msg { font-size: 1.2rem; opacity: .95; }
+  .stat { font-size: 1rem; opacity: .9; }
+  .capture {
+    background: #ffd400; color: #1c1c28; font-weight: 800; font-size: 1rem;
+    border-radius: 14px; padding: 14px 16px; margin: 6px 4px 4px; line-height: 1.35;
+    box-shadow: 0 4px 0 rgba(0,0,0,.25);
+  }
+  footer { text-align: center; font-size: .75rem; opacity: .6; padding: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- PORTADA -->
+  <section id="start" class="screen center active">
+    <div class="emoji">🧠</div>
+    <h1>Formas de Representar<br>un Algoritmo</h1>
+    <div class="sub">4 preguntas · ¡respondé rápido para sumar más puntos!</div>
+    <button class="btn" onclick="startGame()">¡Empezar!</button>
+  </section>
+
+  <!-- JUEGO -->
+  <section id="game" class="screen">
+    <div class="top">
+      <span id="counter">1 / 5</span>
+      <span class="timer" id="timerBox">⏱️ <b id="timer">20</b></span>
+      <span id="score">🏆 0</span>
+    </div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="q" id="question">Pregunta</div>
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <!-- RESULTADO -->
+  <section id="end" class="screen center">
+    <div class="emoji" id="endEmoji">🏆</div>
+    <div class="scorebig" id="finalScore">0</div>
+    <div class="stat">puntos</div>
+    <div class="stat" id="finalCorrect">0 / 5 correctas</div>
+    <div class="msg" id="finalMsg"></div>
+    <div class="capture">📸 Sacale una captura a esta pantalla y subila a los comentarios de la plataforma.</div>
+    <button class="btn" onclick="restart()">Jugar de nuevo 🔁</button>
+  </section>
+
+</div>
+<footer>Introducción a Algoritmos · Procesamiento Digital</footer>
+
+<script>
+const QUESTIONS = [
+  { q: "¿Cuántas formas principales de representar un algoritmo hay?",
+    options: ["Dos", "Tres", "Cuatro", "Cinco"], correct: 1 },
+  { q: "¿Qué forma de representación puede ser ambigua?",
+    options: ["Pseudocódigo", "Diagrama de flujo", "Lenguaje natural", "Código real"], correct: 2 },
+  { q: "El pseudocódigo es un lenguaje de programación real.",
+    options: ["Verdadero", "Falso"], correct: 1 },
+  { q: "¿Cuándo se usa el pseudocódigo?",
+    options: ["Antes de programar", "Después de programar", "Durante la ejecución", "Nunca"], correct: 0 }
+];
+
+const SYM = ["▲","◆","●","■"];
+const TIME_LIMIT = 20;        // segundos por pregunta
+const MAX_POINTS = 1000;      // puntos máximos por pregunta
+const FEEDBACK_MS = 1600;     // pausa antes de avanzar
+
+let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
+let timeLeft = 0, tick = null;
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function startGame(){
+  order = shuffle([...Array(QUESTIONS.length).keys()]);
+  idx = 0; score = 0; correctCount = 0;
+  show('game');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const data = QUESTIONS[order[idx]];
+  document.getElementById('counter').textContent = (idx+1) + " / " + QUESTIONS.length;
+  document.getElementById('score').textContent = "🏆 " + score;
+  document.getElementById('question').textContent = data.q;
+  document.getElementById('feedback').textContent = "";
+
+  const opts = data.options.map((t,i)=>({t, ok: i===data.correct}));
+  shuffle(opts);
+  const box = document.getElementById('opts');
+  box.className = 'opts';
+  box.innerHTML = '';
+  opts.forEach((o,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt o'+i;
+    b.innerHTML = '<span class="sym">'+SYM[i]+'</span><span>'+o.t+'</span>';
+    b.onclick = ()=> answer(b, o.ok, box);
+    box.appendChild(b);
+  });
+
+  startTimer();
+}
+
+function startTimer(){
+  timeLeft = TIME_LIMIT;
+  updateTimer();
+  clearInterval(tick);
+  tick = setInterval(()=>{
+    timeLeft--;
+    updateTimer();
+    if(timeLeft <= 0){ clearInterval(tick); timeUp(); }
+  }, 1000);
+}
+
+function updateTimer(){
+  document.getElementById('timer').textContent = timeLeft;
+  document.getElementById('timerBox').classList.toggle('low', timeLeft <= 5);
+  // barra: tiempo restante
+  document.getElementById('prog').style.width = (timeLeft/TIME_LIMIT*100) + "%";
+}
+
+function pointsForTime(){
+  // Kahoot: respondé al instante = 1000; justo al final = 500
+  const used = TIME_LIMIT - timeLeft;
+  const pts = Math.round(MAX_POINTS * (1 - (used / TIME_LIMIT) / 2));
+  return Math.max(500, pts);
+}
+
+function answer(btn, ok, box){
+  if(answered) return;
+  answered = true;
+  clearInterval(tick);
+  box.classList.add('locked');
+  revealCorrect(box);
+  btn.classList.add(ok ? 'right' : 'wrong');
+
+  const fb = document.getElementById('feedback');
+  if(ok){
+    const gained = pointsForTime();
+    score += gained; correctCount++;
+    fb.textContent = "✅ ¡Correcto! +" + gained;
+    showGain("+" + gained);
+  } else {
+    fb.textContent = "❌ ¡Casi!";
+  }
+  document.getElementById('score').textContent = "🏆 " + score;
+  setTimeout(nextQuestion, FEEDBACK_MS);
+}
+
+function timeUp(){
+  if(answered) return;
+  answered = true;
+  const box = document.getElementById('opts');
+  box.classList.add('locked');
+  revealCorrect(box);
+  document.getElementById('feedback').textContent = "⌛ ¡Se acabó el tiempo!";
+  setTimeout(nextQuestion, FEEDBACK_MS);
+}
+
+function revealCorrect(box){
+  const data = QUESTIONS[order[idx]];
+  const correctText = data.options[data.correct];
+  [...box.children].forEach(c => {
+    if(c.querySelector('span:last-child').textContent === correctText) c.classList.add('right');
+  });
+}
+
+function showGain(txt){
+  const g = document.createElement('div');
+  g.className = 'gain'; g.textContent = txt;
+  document.getElementById('question').appendChild(g);
+  setTimeout(()=> g.remove(), 1000);
+}
+
+function nextQuestion(){
+  idx++;
+  if(idx >= QUESTIONS.length) showEnd();
+  else renderQuestion();
+}
+
+function showEnd(){
+  clearInterval(tick);
+  show('end');
+  const total = QUESTIONS.length;
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalCorrect').textContent = correctCount + " / " + total + " correctas";
+  const pct = correctCount/total;
+  let emoji, msg;
+  if(pct === 1){ emoji="🏆"; msg="¡Perfecto! Dominás el tema."; }
+  else if(pct >= 0.6){ emoji="🎉"; msg="¡Muy bien! Casi todo."; }
+  else if(pct >= 0.4){ emoji="💪"; msg="Vas bien, repasá un poco más."; }
+  else { emoji="📚"; msg="A repasar el material y volver a intentar."; }
+  document.getElementById('endEmoji').textContent = emoji;
+  document.getElementById('finalMsg').textContent = msg;
+}
+
+function restart(){ startGame(); }
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
