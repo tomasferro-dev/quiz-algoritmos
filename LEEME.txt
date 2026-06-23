@@ -11,7 +11,10 @@ ANDROID  (y computadora)
 1. Descarga el ZIP.
 2. Descomprimilo (toca el zip -> "Extraer" / "Descomprimir").
 3. Abri el archivo "index.html".
-4. Toca "Empezar!" y responde las 4 preguntas.
+4. En el menu, elegi un juego:
+   - "Algo-Trivia · Nivel 1"  (14 preguntas)
+   - "Detective de Codigo"    (10 preguntas)
+5. Toca "Empezar!" y responde las preguntas.
 
 Si abre y muestra solo texto/codigo:
 - Abri Chrome -> menu (3 puntos) -> NO sirve; mejor toca el index.html

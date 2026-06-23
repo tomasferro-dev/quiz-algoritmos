@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Quiz: Representar un Algoritmo</title>
+<title>Algo-Trivia · Juegos de Algoritmos</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -34,12 +34,34 @@
     box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s;
   }
   .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
-
-  .top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 10px; font-size: 1.05rem; }
-  .timer {
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(0,0,0,.22); padding: 4px 12px; border-radius: 99px;
+  .btnghost {
+    background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.6);
+    border-radius: 14px; font-size: 1rem; font-weight: 700; padding: 12px 22px; cursor: pointer;
   }
+  .btnghost:active { background: rgba(255,255,255,.12); }
+
+  /* ---- MENÚ ---- */
+  .menuhead { text-align: center; margin: 8px 0 20px; }
+  .menuhead .emoji { display:block; }
+  .quizlist { display: flex; flex-direction: column; gap: 14px; }
+  .quizcard {
+    display: flex; align-items: center; gap: 14px; text-align: left;
+    background: rgba(255,255,255,.97); color: #1c1c28; border: none;
+    border-radius: 16px; padding: 16px; cursor: pointer; width: 100%;
+    box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s;
+  }
+  .quizcard:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+  .quizcard.locked { opacity: .6; cursor: default; background: rgba(255,255,255,.8); }
+  .quizcard.locked:active { transform: none; box-shadow: 0 5px 0 rgba(0,0,0,.25); }
+  .qc-emoji { font-size: 2.2rem; flex-shrink: 0; }
+  .qc-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .qc-title { font-size: 1.15rem; font-weight: 900; line-height: 1.1; }
+  .qc-sub { font-size: .85rem; color: #555; line-height: 1.2; }
+  .qc-arrow { font-size: 1.3rem; color: var(--bg1); flex-shrink: 0; }
+
+  /* ---- HEADER JUEGO ---- */
+  .top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 10px; font-size: 1.05rem; }
+  .timer { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.22); padding: 4px 12px; border-radius: 99px; }
   .timer.low { background: var(--rojo); animation: pulse .5s infinite alternate; }
   @keyframes pulse { from{transform:scale(1);} to{transform:scale(1.08);} }
   .bar { height: 8px; background: rgba(255,255,255,.25); border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
@@ -51,17 +73,13 @@
     min-height: 110px; display: flex; align-items: center; justify-content: center;
     box-shadow: 0 6px 18px rgba(0,0,0,.2); margin-bottom: 16px; position: relative;
   }
-  .gain {
-    position: absolute; top: -10px; right: 14px; color: var(--verde);
-    font-weight: 900; font-size: 1.5rem; animation: floatUp 1s ease forwards;
-  }
+  .gain { position: absolute; top: -10px; right: 14px; color: var(--verde); font-weight: 900; font-size: 1.5rem; animation: floatUp 1s ease forwards; }
   .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
   .opt {
     border: none; border-radius: 12px; color: #fff; font-weight: 800;
     font-size: 1.05rem; padding: 22px 12px; cursor: pointer; min-height: 78px;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 5px 0 rgba(0,0,0,.28); transition: transform .08s, opacity .2s;
-    text-align: center;
+    box-shadow: 0 5px 0 rgba(0,0,0,.28); transition: transform .08s, opacity .2s; text-align: center;
   }
   .opt:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.28); }
   .opt .sym { font-size: 1.3rem; }
@@ -82,18 +100,30 @@
     border-radius: 14px; padding: 14px 16px; margin: 6px 4px 4px; line-height: 1.35;
     box-shadow: 0 4px 0 rgba(0,0,0,.25);
   }
+  .endbtns { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
   footer { text-align: center; font-size: .75rem; opacity: .6; padding: 10px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- PORTADA -->
-  <section id="start" class="screen center active">
-    <div class="emoji">🧠</div>
-    <h1>Formas de Representar<br>un Algoritmo</h1>
-    <div class="sub">4 preguntas · ¡respondé rápido para sumar más puntos!</div>
-    <button class="btn" onclick="startGame()">¡Empezar!</button>
+  <!-- MENÚ -->
+  <section id="menu" class="screen active">
+    <div class="menuhead">
+      <span class="emoji">🎮</span>
+      <h1>Algo-Trivia</h1>
+      <div class="sub">Elegí un desafío</div>
+    </div>
+    <div id="quizList" class="quizlist"></div>
+  </section>
+
+  <!-- PORTADA DEL QUIZ -->
+  <section id="start" class="screen center">
+    <div class="emoji" id="startEmoji">🧠</div>
+    <h1 id="startTitle">Quiz</h1>
+    <div class="sub" id="startSub"></div>
+    <button class="btn" onclick="beginQuiz()">¡Empezar!</button>
+    <button class="btnghost" onclick="show('menu')">← Volver al menú</button>
   </section>
 
   <!-- JUEGO -->
@@ -117,45 +147,130 @@
     <div class="stat" id="finalCorrect">0 / 5 correctas</div>
     <div class="msg" id="finalMsg"></div>
     <div class="capture">📸 Sacale una captura a esta pantalla y subila a los comentarios de la plataforma.</div>
-    <button class="btn" onclick="restart()">Jugar de nuevo 🔁</button>
+    <div class="endbtns">
+      <button class="btn" onclick="beginQuiz()">Jugar de nuevo 🔁</button>
+      <button class="btnghost" onclick="show('menu')">🎮 Volver al menú</button>
+    </div>
   </section>
 
 </div>
 <footer>Introducción a Algoritmos · Procesamiento Digital</footer>
 
 <script>
-const QUESTIONS = [
-  { q: "¿Cuántas formas principales de representar un algoritmo hay?",
-    options: ["Dos", "Tres", "Cuatro", "Cinco"], correct: 1 },
-  { q: "¿Qué forma de representación puede ser ambigua?",
-    options: ["Pseudocódigo", "Diagrama de flujo", "Lenguaje natural", "Código real"], correct: 2 },
-  { q: "El pseudocódigo es un lenguaje de programación real.",
-    options: ["Verdadero", "Falso"], correct: 1 },
-  { q: "¿Cuándo se usa el pseudocódigo?",
-    options: ["Antes de programar", "Después de programar", "Durante la ejecución", "Nunca"], correct: 0 }
+const QUIZZES = [
+  {
+    emoji: "🧠",
+    title: "Algo-Trivia · Nivel 1",
+    subtitle: "Qué es un algoritmo, pseudocódigo y secuencias",
+    questions: [
+      { q: "¿Cuántas formas principales de representar un algoritmo hay?",
+        options: ["Dos", "Tres", "Cuatro", "Cinco"], correct: 1 },
+      { q: "¿Qué forma de representación puede ser ambigua?",
+        options: ["Pseudocódigo", "Diagrama de flujo", "Lenguaje natural", "Código real"], correct: 2 },
+      { q: "El pseudocódigo es un lenguaje de programación real.",
+        options: ["Verdadero", "Falso"], correct: 1 },
+      { q: "¿Cuándo se usa el pseudocódigo?",
+        options: ["Antes de programar", "Después de programar", "Durante la ejecución", "Nunca"], correct: 0 },
+      { q: "¿Cuál es una palabra clave típica del pseudocódigo?",
+        options: ["INICIO", "HOLA", "COLOR", "RÁPIDO"], correct: 0 },
+      { q: "En el pseudocódigo, ¿qué palabra marca el final?",
+        options: ["FIN", "STOP", "ALTO", "CHAU"], correct: 0 },
+      { q: "El lenguaje natural puede ser ambiguo.",
+        options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "Una receta de cocina es un ejemplo de algoritmo.",
+        options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "¿Qué forma de representación es la más accesible pero ambigua?",
+        options: ["Lenguaje natural", "Pseudocódigo", "Diagrama de flujo", "Código real"], correct: 0 },
+      { q: "En una estructura secuencial, ¿cómo se ejecutan los pasos?",
+        options: ["Uno tras otro, en orden", "Todos al mismo tiempo", "En orden al azar", "De abajo hacia arriba"], correct: 0 },
+      { q: "La estructura secuencial es la más simple de todas.",
+        options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "En una estructura secuencial, ¿se repiten pasos?",
+        options: ["No", "Sí, siempre", "Solo el último", "Solo si hay error"], correct: 0 },
+      { q: "En una secuencia, cada paso se ejecuta exactamente...",
+        options: ["Una vez", "Dos veces", "Mil veces", "Cero veces"], correct: 0 },
+      { q: "En el ejemplo \"total ← precio + iva\", ¿qué guarda la variable total?",
+        options: ["El precio con IVA", "El precio sin IVA", "Solo el IVA", "El descuento"], correct: 0 }
+    ]
+  },
+  {
+    emoji: "🕵️",
+    title: "Detective de Código",
+    subtitle: "Leé la línea y descubrí qué hace",
+    questions: [
+      { q: "¿Qué hace la línea:  LEER numero ?",
+        options: ["Pide un dato al usuario", "Muestra un mensaje", "Suma dos números", "Termina el programa"], correct: 0 },
+      { q: "¿Qué hace la línea:  ESCRIBIR \"Hola\" ?",
+        options: ["Muestra un mensaje", "Pide un dato al usuario", "Borra todo", "Crea una variable"], correct: 0 },
+      { q: "En  iva ← precio * 0.21 , el símbolo ← significa...",
+        options: ["Asigna un valor", "Compara valores", "Resta", "Termina"], correct: 0 },
+      { q: "La línea  total ← precio + iva  realiza una suma.",
+        options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "¿Qué calcula la línea  promedio ← suma / 3 ?",
+        options: ["El promedio de 3 valores", "La suma total", "El mayor de 3", "El resto de dividir"], correct: 0 },
+      { q: "En  SI numero > 0 ENTONCES , ¿qué es  \"> 0\" ?",
+        options: ["Una condición", "Una suma", "Un mensaje", "El final"], correct: 0 },
+      { q: "La línea  suma ← suma + nota  va acumulando valores.",
+        options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "En  PARA i DESDE 1 HASTA 3 , ¿cuántas veces se repite?",
+        options: ["3 veces", "1 vez", "Infinitas", "Ninguna"], correct: 0 },
+      { q: "En  iva ← precio * 0.21 , ¿qué es  \"precio\" ?",
+        options: ["Una variable", "Una palabra clave", "Un texto", "El final"], correct: 0 },
+      { q: "La palabra ESCRIBIR se usa para mostrar datos (salida).",
+        options: ["Verdadero", "Falso"], correct: 0 }
+    ]
+  }
 ];
 
 const SYM = ["▲","◆","●","■"];
-const TIME_LIMIT = 20;        // segundos por pregunta
-const MAX_POINTS = 1000;      // puntos máximos por pregunta
-const FEEDBACK_MS = 1600;     // pausa antes de avanzar
+const TIME_LIMIT = 20;
+const MAX_POINTS = 1000;
+const FEEDBACK_MS = 1600;
 
+let Q = [];                 // preguntas del quiz elegido
 let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
 let timeLeft = 0, tick = null;
 
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-function startGame(){
-  order = shuffle([...Array(QUESTIONS.length).keys()]);
+/* ---------- MENÚ ---------- */
+function renderMenu(){
+  const list = document.getElementById('quizList');
+  list.innerHTML = '';
+  QUIZZES.forEach((quiz, i) => {
+    const card = document.createElement('button');
+    card.className = 'quizcard' + (quiz.locked ? ' locked' : '');
+    card.innerHTML =
+      '<span class="qc-emoji">' + quiz.emoji + '</span>' +
+      '<span class="qc-text"><span class="qc-title">' + quiz.title + '</span>' +
+      '<span class="qc-sub">' + quiz.subtitle + '</span></span>' +
+      '<span class="qc-arrow">' + (quiz.locked ? '🔒' : '▶') + '</span>';
+    if(!quiz.locked) card.onclick = () => openQuiz(i);
+    list.appendChild(card);
+  });
+}
+
+function openQuiz(i){
+  const quiz = QUIZZES[i];
+  Q = quiz.questions;
+  document.getElementById('startEmoji').textContent = quiz.emoji;
+  document.getElementById('startTitle').textContent = quiz.title;
+  document.getElementById('startSub').textContent = quiz.questions.length + ' preguntas · ¡respondé rápido para sumar más puntos!';
+  show('start');
+}
+
+function beginQuiz(){
+  order = shuffle([...Array(Q.length).keys()]);
   idx = 0; score = 0; correctCount = 0;
   show('game');
   renderQuestion();
 }
 
+/* ---------- JUEGO ---------- */
 function renderQuestion(){
   answered = false;
-  const data = QUESTIONS[order[idx]];
-  document.getElementById('counter').textContent = (idx+1) + " / " + QUESTIONS.length;
+  const data = Q[order[idx]];
+  document.getElementById('counter').textContent = (idx+1) + " / " + Q.length;
   document.getElementById('score').textContent = "🏆 " + score;
   document.getElementById('question').textContent = data.q;
   document.getElementById('feedback').textContent = "";
@@ -172,7 +287,6 @@ function renderQuestion(){
     b.onclick = ()=> answer(b, o.ok, box);
     box.appendChild(b);
   });
-
   startTimer();
 }
 
@@ -190,12 +304,10 @@ function startTimer(){
 function updateTimer(){
   document.getElementById('timer').textContent = timeLeft;
   document.getElementById('timerBox').classList.toggle('low', timeLeft <= 5);
-  // barra: tiempo restante
   document.getElementById('prog').style.width = (timeLeft/TIME_LIMIT*100) + "%";
 }
 
 function pointsForTime(){
-  // Kahoot: respondé al instante = 1000; justo al final = 500
   const used = TIME_LIMIT - timeLeft;
   const pts = Math.round(MAX_POINTS * (1 - (used / TIME_LIMIT) / 2));
   return Math.max(500, pts);
@@ -208,7 +320,6 @@ function answer(btn, ok, box){
   box.classList.add('locked');
   revealCorrect(box);
   btn.classList.add(ok ? 'right' : 'wrong');
-
   const fb = document.getElementById('feedback');
   if(ok){
     const gained = pointsForTime();
@@ -233,7 +344,7 @@ function timeUp(){
 }
 
 function revealCorrect(box){
-  const data = QUESTIONS[order[idx]];
+  const data = Q[order[idx]];
   const correctText = data.options[data.correct];
   [...box.children].forEach(c => {
     if(c.querySelector('span:last-child').textContent === correctText) c.classList.add('right');
@@ -249,14 +360,14 @@ function showGain(txt){
 
 function nextQuestion(){
   idx++;
-  if(idx >= QUESTIONS.length) showEnd();
+  if(idx >= Q.length) showEnd();
   else renderQuestion();
 }
 
 function showEnd(){
   clearInterval(tick);
   show('end');
-  const total = QUESTIONS.length;
+  const total = Q.length;
   document.getElementById('finalScore').textContent = score;
   document.getElementById('finalCorrect').textContent = correctCount + " / " + total + " correctas";
   const pct = correctCount/total;
@@ -269,13 +380,13 @@ function showEnd(){
   document.getElementById('finalMsg').textContent = msg;
 }
 
-function restart(){ startGame(); }
-
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
 }
+
+renderMenu();
 </script>
 </body>
 </html>
