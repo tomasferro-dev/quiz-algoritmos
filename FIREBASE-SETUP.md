@@ -58,6 +58,43 @@ service cloud.firestore {
 Esto permite: leer el ranking (todos) y crear un puntaje nuevo, pero NO editar
 ni borrar puntajes ajenos.
 
+## 4-bis. Modo profe (eliminar intentos del ranking)
+
+Para poder borrar puntajes, solo vos (con un email + contraseña) tenés permiso.
+
+**a) Activar el login por email**
+1. En el menú lateral: **Compilación → Authentication → Comenzar**.
+2. Pestaña **"Sign-in method"** → habilitá **"Correo electrónico/contraseña"** → Guardar.
+
+**b) Crear tu usuario de profe**
+1. Pestaña **"Users"** → **"Agregar usuario"**.
+2. Poné tu email y una contraseña → Agregar. (Este será tu login de admin.)
+
+**c) Dar permiso de borrado SOLO a ese email**
+En **Firestore Database → Reglas**, reemplazá el bloque por esta versión
+(es igual que antes, pero con la línea de `delete`). Cambiá el email por el tuyo:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /rankings/{quiz}/scores/{doc} {
+      allow read: if true;
+      allow create: if request.resource.data.score is number
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() <= 30;
+      allow update: if false;
+      allow delete: if request.auth != null
+                    && request.auth.token.email == "TU-EMAIL-DE-PROFE@ejemplo.com";
+    }
+  }
+}
+```
+
+Publicá. Listo: en la pantalla de ranking aparece **"🔐 Modo profe"**. Entrás con
+tu email/contraseña y al lado de cada puntaje aparece un 🗑 para eliminarlo.
+Los alumnos no ven el botón ni pueden borrar nada.
+
 ## 5. Subir el cambio
 
 Como ya tenés GitHub → Vercel:

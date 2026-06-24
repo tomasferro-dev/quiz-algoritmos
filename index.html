@@ -84,6 +84,9 @@
   .lb-name { flex: 1; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lb-score { font-weight: 900; color: var(--bg1); }
   .lbempty { text-align: center; opacity: .85; padding: 20px; line-height: 1.5; }
+  .lb-del { border: none; background: var(--rojo); color:#fff; font-weight: 900; border-radius: 8px; width: 32px; height: 32px; font-size: 1rem; cursor: pointer; flex-shrink: 0; }
+  .adminbox { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  #adminForm { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 8px; }
   footer { text-align: center; font-size: .75rem; opacity: .6; padding: 10px; }
 </style>
 </head>
@@ -147,6 +150,23 @@
     <div class="lbhead"><span class="emoji">🏆</span><h1>Ranking</h1></div>
     <div class="seg" id="lbSeg"></div>
     <div class="lblist" id="lbList"></div>
+
+    <div class="adminbox">
+      <div id="adminLogin">
+        <button class="btnghost" onclick="toggleAdminForm()">🔐 Modo profe</button>
+        <div id="adminForm" class="hidden">
+          <input class="nameinput" id="admEmail" type="email" placeholder="Email de profe" autocomplete="username">
+          <input class="nameinput" id="admPass" type="password" placeholder="Contraseña" autocomplete="current-password">
+          <button class="btn" onclick="adminLogin()">Entrar</button>
+          <div class="savestate" id="admMsg"></div>
+        </div>
+      </div>
+      <div id="adminActive" class="hidden">
+        <div class="savestate" id="admWho"></div>
+        <button class="btnghost" onclick="adminLogout()">Salir de modo profe</button>
+      </div>
+    </div>
+
     <div style="margin-top:16px; text-align:center;">
       <button class="btnghost" onclick="leaveLeaderboard()">🎮 Volver al menú</button>
     </div>
@@ -160,8 +180,10 @@
 <!-- ============================================================= -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp }
+  import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, limit, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   // 🔻🔻🔻  REEMPLAZA ESTE OBJETO POR EL DE TU PROYECTO FIREBASE  🔻🔻🔻
   // const firebaseConfig = {
@@ -191,6 +213,7 @@
     if (firebaseConfig.apiKey === "TU_API_KEY") throw new Error("Firebase sin configurar");
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
     window.fb = {
       ready: true,
       async saveScore(quizId, data) {
@@ -200,8 +223,14 @@
       watchTop(quizId, cb) {
         const qy = query(collection(db, "rankings", quizId, "scores"),
           orderBy("score", "desc"), limit(20));
-        return onSnapshot(qy, snap => cb(snap.docs.map(d => d.data())));
-      }
+        return onSnapshot(qy, snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+      },
+      deleteScore(quizId, id) {
+        return deleteDoc(doc(db, "rankings", quizId, "scores", id));
+      },
+      login(email, pass) { return signInWithEmailAndPassword(auth, email, pass); },
+      logout() { return signOut(auth); },
+      onAuth(cb) { return onAuthStateChanged(auth, cb); }
     };
   } catch (e) {
     window.fb = { ready: false, error: e.message };
@@ -287,6 +316,7 @@ if(!playerId){ playerId = "p" + Math.abs(hashStr(navigator.userAgent + performan
 let currentQuiz = null, Q = [], lastQuizId = "trivia1";
 let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
 let timeLeft = 0, tick = null, lbUnsub = null;
+let isAdmin = false, currentLbQuiz = null;
 
 function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))|0; } return h; }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
@@ -443,6 +473,7 @@ function renderSeg(activeId){
   });
 }
 function watchBoard(quizId){
+  currentLbQuiz = quizId;
   if(lbUnsub){ lbUnsub(); lbUnsub = null; }
   const list = document.getElementById('lbList');
   if(!window.fb || !window.fb.ready){
@@ -457,15 +488,49 @@ function watchBoard(quizId){
     rows.forEach((r, i) => {
       const row = document.createElement('div');
       row.className = 'lbrow' + (r.playerId === playerId ? ' me' : '');
-      row.innerHTML =
+      let html =
         '<span class="lb-pos">' + (medals[i] || (i+1)) + '</span>' +
         '<span class="lb-name">' + escapeHtml(r.name || "Anónimo") + '</span>' +
         '<span class="lb-score">' + (r.score||0) + '</span>';
+      if(isAdmin && r.id) html += '<button class="lb-del" title="Eliminar intento">🗑</button>';
+      row.innerHTML = html;
+      if(isAdmin && r.id) row.querySelector('.lb-del').onclick = () => deleteEntry(quizId, r.id, r.name);
       list.appendChild(row);
     });
   });
 }
 function leaveLeaderboard(){ if(lbUnsub){ lbUnsub(); lbUnsub = null; } show('menu'); }
+
+/* ---------- ADMIN (modo profe) ---------- */
+function toggleAdminForm(){ document.getElementById('adminForm').classList.toggle('hidden'); }
+function adminLogin(){
+  const email = document.getElementById('admEmail').value.trim();
+  const pass = document.getElementById('admPass').value;
+  const msg = document.getElementById('admMsg');
+  if(!email || !pass){ msg.textContent = "Completá email y contraseña."; return; }
+  if(!window.fb || !window.fb.ready){ msg.textContent = "Firebase no disponible."; return; }
+  msg.textContent = "Entrando…";
+  window.fb.login(email, pass)
+    .then(()=>{ msg.textContent = ""; document.getElementById('admPass').value = ""; })
+    .catch(e => msg.textContent = "Error: " + (e.code || e.message));
+}
+function adminLogout(){ if(window.fb && window.fb.ready) window.fb.logout(); }
+function deleteEntry(quizId, id, name){
+  if(!confirm('¿Eliminar el intento de "' + (name || "Anónimo") + '" del ranking?')) return;
+  window.fb.deleteScore(quizId, id).catch(e => alert("No se pudo eliminar: " + (e.code || e.message)));
+}
+function initAuth(){
+  if(!(window.fb && window.fb.ready && window.fb.onAuth)) return;
+  window.fb.onAuth(user => {
+    isAdmin = !!user;
+    document.getElementById('adminLogin').classList.toggle('hidden', isAdmin);
+    document.getElementById('adminActive').classList.toggle('hidden', !isAdmin);
+    if(isAdmin) document.getElementById('admWho').textContent = "👤 " + (user.email || "profe") + " — tocá 🗑 para eliminar intentos";
+    if(document.getElementById('leaderboard').classList.contains('active') && currentLbQuiz) watchBoard(currentLbQuiz);
+  });
+}
+window.addEventListener('fb-ready', initAuth);
+if(window.fb) initAuth();
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 function show(id){
