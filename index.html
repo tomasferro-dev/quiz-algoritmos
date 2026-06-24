@@ -6,16 +6,12 @@
 <title>Algo-Trivia · Juegos de Algoritmos</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --rojo:#e21b3c; --azul:#1368ce; --amar:#d89e00; --verde:#26890c;
-    --bg1:#46178f; --bg2:#7b2ff7;
-  }
+  :root { --rojo:#e21b3c; --azul:#1368ce; --amar:#d89e00; --verde:#26890c; --bg1:#46178f; --bg2:#7b2ff7; }
   html, body { height: 100%; }
   body {
     font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     background: linear-gradient(160deg, var(--bg1), var(--bg2));
-    color: #fff; min-height: 100dvh;
-    display: flex; flex-direction: column; overflow-x: hidden;
+    color: #fff; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden;
   }
   .wrap { flex: 1; display: flex; flex-direction: column; padding: 18px; max-width: 600px; margin: 0 auto; width: 100%; }
   .screen { display: none; flex: 1; flex-direction: column; animation: fade .25s ease; }
@@ -28,38 +24,26 @@
   h1 { font-size: 1.9rem; line-height: 1.15; text-shadow: 0 3px 0 rgba(0,0,0,.25); }
   .sub { font-size: 1rem; opacity: .9; }
   .emoji { font-size: 3.4rem; }
-  .btn {
-    background: #fff; color: #46178f; border: none; border-radius: 14px;
-    font-size: 1.15rem; font-weight: 800; padding: 16px 26px; cursor: pointer;
-    box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s;
-  }
+  .btn { background: #fff; color: #46178f; border: none; border-radius: 14px; font-size: 1.15rem; font-weight: 800; padding: 16px 26px; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s; }
   .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
-  .btnghost {
-    background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.6);
-    border-radius: 14px; font-size: 1rem; font-weight: 700; padding: 12px 22px; cursor: pointer;
-  }
+  .btnghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.6); border-radius: 14px; font-size: 1rem; font-weight: 700; padding: 12px 22px; cursor: pointer; }
   .btnghost:active { background: rgba(255,255,255,.12); }
+  .nameinput { width: 100%; max-width: 320px; border: none; border-radius: 12px; padding: 14px 16px; font-size: 1.1rem; font-weight: 700; text-align: center; color: #1c1c28; }
 
-  /* ---- MENÚ ---- */
+  /* MENÚ */
   .menuhead { text-align: center; margin: 8px 0 20px; }
   .menuhead .emoji { display:block; }
   .quizlist { display: flex; flex-direction: column; gap: 14px; }
-  .quizcard {
-    display: flex; align-items: center; gap: 14px; text-align: left;
-    background: rgba(255,255,255,.97); color: #1c1c28; border: none;
-    border-radius: 16px; padding: 16px; cursor: pointer; width: 100%;
-    box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s;
-  }
+  .quizcard { display: flex; align-items: center; gap: 14px; text-align: left; background: rgba(255,255,255,.97); color: #1c1c28; border: none; border-radius: 16px; padding: 16px; cursor: pointer; width: 100%; box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s; }
   .quizcard:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
-  .quizcard.locked { opacity: .6; cursor: default; background: rgba(255,255,255,.8); }
-  .quizcard.locked:active { transform: none; box-shadow: 0 5px 0 rgba(0,0,0,.25); }
+  .quizcard.locked { opacity: .6; cursor: default; }
   .qc-emoji { font-size: 2.2rem; flex-shrink: 0; }
   .qc-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
   .qc-title { font-size: 1.15rem; font-weight: 900; line-height: 1.1; }
   .qc-sub { font-size: .85rem; color: #555; line-height: 1.2; }
   .qc-arrow { font-size: 1.3rem; color: var(--bg1); flex-shrink: 0; }
 
-  /* ---- HEADER JUEGO ---- */
+  /* HEADER JUEGO */
   .top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 10px; font-size: 1.05rem; }
   .timer { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.22); padding: 4px 12px; border-radius: 99px; }
   .timer.low { background: var(--rojo); animation: pulse .5s infinite alternate; }
@@ -67,24 +51,13 @@
   .bar { height: 8px; background: rgba(255,255,255,.25); border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
   .bar > i { display: block; height: 100%; background: #ffd400; width: 100%; }
 
-  .q {
-    background: rgba(255,255,255,.97); color: #1c1c28; border-radius: 16px;
-    padding: 20px 18px; font-size: 1.25rem; font-weight: 800; text-align: center;
-    min-height: 110px; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 18px rgba(0,0,0,.2); margin-bottom: 16px; position: relative;
-  }
+  .q { background: rgba(255,255,255,.97); color: #1c1c28; border-radius: 16px; padding: 20px 18px; font-size: 1.25rem; font-weight: 800; text-align: center; min-height: 110px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(0,0,0,.2); margin-bottom: 16px; position: relative; }
   .gain { position: absolute; top: -10px; right: 14px; color: var(--verde); font-weight: 900; font-size: 1.5rem; animation: floatUp 1s ease forwards; }
   .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
-  .opt {
-    border: none; border-radius: 12px; color: #fff; font-weight: 800;
-    font-size: 1.05rem; padding: 22px 12px; cursor: pointer; min-height: 78px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 5px 0 rgba(0,0,0,.28); transition: transform .08s, opacity .2s; text-align: center;
-  }
+  .opt { border: none; border-radius: 12px; color: #fff; font-weight: 800; font-size: 1.05rem; padding: 22px 12px; cursor: pointer; min-height: 78px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 5px 0 rgba(0,0,0,.28); transition: transform .08s, opacity .2s; text-align: center; }
   .opt:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.28); }
   .opt .sym { font-size: 1.3rem; }
-  .o0 { background: var(--rojo);} .o1 { background: var(--azul);}
-  .o2 { background: var(--amar);} .o3 { background: var(--verde);}
+  .o0 { background: var(--rojo);} .o1 { background: var(--azul);} .o2 { background: var(--amar);} .o3 { background: var(--verde);}
   .opts.locked .opt { opacity: .4; }
   .opts.locked .opt.right { opacity: 1; outline: 4px solid #fff; }
   .opts.locked .opt.wrong { opacity: 1; outline: 4px solid #fff; filter: grayscale(.3); }
@@ -95,12 +68,22 @@
   .scorebig { font-size: 3.4rem; font-weight: 900; animation: pop .5s ease; }
   .msg { font-size: 1.2rem; opacity: .95; }
   .stat { font-size: 1rem; opacity: .9; }
-  .capture {
-    background: #ffd400; color: #1c1c28; font-weight: 800; font-size: 1rem;
-    border-radius: 14px; padding: 14px 16px; margin: 6px 4px 4px; line-height: 1.35;
-    box-shadow: 0 4px 0 rgba(0,0,0,.25);
-  }
+  .savestate { font-size: .85rem; opacity: .85; min-height: 18px; }
+  .capture { background: #ffd400; color: #1c1c28; font-weight: 800; font-size: 1rem; border-radius: 14px; padding: 14px 16px; margin: 6px 4px 4px; line-height: 1.35; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
   .endbtns { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
+
+  /* RANKING */
+  .lbhead { text-align: center; margin-bottom: 14px; }
+  .seg { display: flex; gap: 8px; margin-bottom: 14px; }
+  .seg button { flex: 1; border: 2px solid rgba(255,255,255,.4); background: rgba(255,255,255,.1); color: #fff; font-weight: 800; font-size: .9rem; border-radius: 12px; padding: 10px 6px; cursor: pointer; }
+  .seg button.on { background: #fff; color: var(--bg1); border-color: #fff; }
+  .lblist { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .lbrow { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.95); color: #1c1c28; border-radius: 12px; padding: 12px 14px; box-shadow: 0 3px 0 rgba(0,0,0,.2); }
+  .lbrow.me { outline: 3px solid #ffd400; }
+  .lb-pos { font-weight: 900; font-size: 1.1rem; width: 34px; text-align: center; flex-shrink: 0; }
+  .lb-name { flex: 1; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-score { font-weight: 900; color: var(--bg1); }
+  .lbempty { text-align: center; opacity: .85; padding: 20px; line-height: 1.5; }
   footer { text-align: center; font-size: .75rem; opacity: .6; padding: 10px; }
 </style>
 </head>
@@ -115,13 +98,17 @@
       <div class="sub">Elegí un desafío</div>
     </div>
     <div id="quizList" class="quizlist"></div>
+    <div style="margin-top:18px; text-align:center;">
+      <button class="btnghost" onclick="openLeaderboard()">🏆 Ver ranking</button>
+    </div>
   </section>
 
-  <!-- PORTADA DEL QUIZ -->
+  <!-- PORTADA / NOMBRE -->
   <section id="start" class="screen center">
     <div class="emoji" id="startEmoji">🧠</div>
     <h1 id="startTitle">Quiz</h1>
     <div class="sub" id="startSub"></div>
+    <input class="nameinput" id="playerName" maxlength="20" placeholder="Escribí tu nombre" autocomplete="off">
     <button class="btn" onclick="beginQuiz()">¡Empezar!</button>
     <button class="btnghost" onclick="show('menu')">← Volver al menú</button>
   </section>
@@ -146,19 +133,93 @@
     <div class="stat">puntos</div>
     <div class="stat" id="finalCorrect">0 / 5 correctas</div>
     <div class="msg" id="finalMsg"></div>
+    <div class="savestate" id="saveState"></div>
     <div class="capture">📸 Sacale una captura a esta pantalla y subila a los comentarios de la plataforma.</div>
     <div class="endbtns">
-      <button class="btn" onclick="beginQuiz()">Jugar de nuevo 🔁</button>
+      <button class="btn" onclick="openLeaderboard(lastQuizId)">🏆 Ver ranking</button>
+      <button class="btnghost" onclick="replay()">Jugar de nuevo 🔁</button>
       <button class="btnghost" onclick="show('menu')">🎮 Volver al menú</button>
+    </div>
+  </section>
+
+  <!-- RANKING / LEADERBOARD -->
+  <section id="leaderboard" class="screen">
+    <div class="lbhead"><span class="emoji">🏆</span><h1>Ranking</h1></div>
+    <div class="seg" id="lbSeg"></div>
+    <div class="lblist" id="lbList"></div>
+    <div style="margin-top:16px; text-align:center;">
+      <button class="btnghost" onclick="leaveLeaderboard()">🎮 Volver al menú</button>
     </div>
   </section>
 
 </div>
 <footer>Introducción a Algoritmos · Procesamiento Digital</footer>
 
+<!-- ============================================================= -->
+<!--  FIREBASE  —  PEGÁ ACÁ TUS CREDENCIALES (paso a paso abajo)   -->
+<!-- ============================================================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // 🔻🔻🔻  REEMPLAZA ESTE OBJETO POR EL DE TU PROYECTO FIREBASE  🔻🔻🔻
+  // const firebaseConfig = {
+  //   apiKey: "TU_API_KEY",
+  //   authDomain: "TU_PROYECTO.firebaseapp.com",
+  //   projectId: "TU_PROYECTO",
+  //   storageBucket: "TU_PROYECTO.appspot.com",
+  //   messagingSenderId: "TU_SENDER_ID",
+  //   appId: "TU_APP_ID"
+  // };
+  
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCdOMyz2FRVENw8JOcqqWR_C6NaSouaZoo",
+  authDomain: "juegos-colegio.firebaseapp.com",
+  projectId: "juegos-colegio",
+  storageBucket: "juegos-colegio.firebasestorage.app",
+  messagingSenderId: "1070832774968",
+  appId: "1:1070832774968:web:f98d459f60d6afcb359bcd"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+
+  // 🔺🔺🔺  ----------------------------------------------------  🔺🔺🔺
+
+  try {
+    if (firebaseConfig.apiKey === "TU_API_KEY") throw new Error("Firebase sin configurar");
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.fb = {
+      ready: true,
+      async saveScore(quizId, data) {
+        await addDoc(collection(db, "rankings", quizId, "scores"),
+          { ...data, createdAt: serverTimestamp() });
+      },
+      watchTop(quizId, cb) {
+        const qy = query(collection(db, "rankings", quizId, "scores"),
+          orderBy("score", "desc"), limit(20));
+        return onSnapshot(qy, snap => cb(snap.docs.map(d => d.data())));
+      }
+    };
+  } catch (e) {
+    window.fb = { ready: false, error: e.message };
+  }
+  window.dispatchEvent(new Event("fb-ready"));
+</script>
+
 <script>
 const QUIZZES = [
   {
+    id: "trivia1",
     emoji: "🧠",
     title: "Algo-Trivia · Nivel 1",
     subtitle: "Qué es un algoritmo, pseudocódigo y secuencias",
@@ -194,6 +255,7 @@ const QUIZZES = [
     ]
   },
   {
+    id: "detective",
     emoji: "🕵️",
     title: "Detective de Código",
     subtitle: "Leé la línea y descubrí qué hace",
@@ -223,14 +285,17 @@ const QUIZZES = [
 ];
 
 const SYM = ["▲","◆","●","■"];
-const TIME_LIMIT = 20;
-const MAX_POINTS = 1000;
-const FEEDBACK_MS = 1600;
+const TIME_LIMIT = 20, MAX_POINTS = 1000, FEEDBACK_MS = 1600;
 
-let Q = [];                 // preguntas del quiz elegido
+// id de jugador estable (para resaltar mi fila en el ranking)
+let playerId = localStorage.getItem("algoPlayerId");
+if(!playerId){ playerId = "p" + Math.abs(hashStr(navigator.userAgent + performance.now())); localStorage.setItem("algoPlayerId", playerId); }
+
+let currentQuiz = null, Q = [], lastQuizId = "trivia1";
 let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
-let timeLeft = 0, tick = null;
+let timeLeft = 0, tick = null, lbUnsub = null;
 
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))|0; } return h; }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
 /* ---------- MENÚ ---------- */
@@ -251,20 +316,26 @@ function renderMenu(){
 }
 
 function openQuiz(i){
-  const quiz = QUIZZES[i];
-  Q = quiz.questions;
-  document.getElementById('startEmoji').textContent = quiz.emoji;
-  document.getElementById('startTitle').textContent = quiz.title;
-  document.getElementById('startSub').textContent = quiz.questions.length + ' preguntas · ¡respondé rápido para sumar más puntos!';
+  currentQuiz = QUIZZES[i];
+  Q = currentQuiz.questions;
+  document.getElementById('startEmoji').textContent = currentQuiz.emoji;
+  document.getElementById('startTitle').textContent = currentQuiz.title;
+  document.getElementById('startSub').textContent = Q.length + ' preguntas · ¡respondé rápido para sumar más puntos!';
+  document.getElementById('playerName').value = localStorage.getItem("algoPlayerName") || "";
   show('start');
 }
 
 function beginQuiz(){
+  const name = document.getElementById('playerName').value.trim();
+  if(!name){ alert("Escribí tu nombre para jugar 🙂"); return; }
+  localStorage.setItem("algoPlayerName", name);
   order = shuffle([...Array(Q.length).keys()]);
   idx = 0; score = 0; correctCount = 0;
   show('game');
   renderQuestion();
 }
+
+function replay(){ openQuiz(QUIZZES.indexOf(currentQuiz)); }
 
 /* ---------- JUEGO ---------- */
 function renderQuestion(){
@@ -274,12 +345,10 @@ function renderQuestion(){
   document.getElementById('score').textContent = "🏆 " + score;
   document.getElementById('question').textContent = data.q;
   document.getElementById('feedback').textContent = "";
-
   const opts = data.options.map((t,i)=>({t, ok: i===data.correct}));
   shuffle(opts);
   const box = document.getElementById('opts');
-  box.className = 'opts';
-  box.innerHTML = '';
+  box.className = 'opts'; box.innerHTML = '';
   opts.forEach((o,i)=>{
     const b = document.createElement('button');
     b.className = 'opt o'+i;
@@ -291,83 +360,51 @@ function renderQuestion(){
 }
 
 function startTimer(){
-  timeLeft = TIME_LIMIT;
-  updateTimer();
-  clearInterval(tick);
-  tick = setInterval(()=>{
-    timeLeft--;
-    updateTimer();
-    if(timeLeft <= 0){ clearInterval(tick); timeUp(); }
-  }, 1000);
+  timeLeft = TIME_LIMIT; updateTimer(); clearInterval(tick);
+  tick = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(tick); timeUp(); } }, 1000);
 }
-
 function updateTimer(){
   document.getElementById('timer').textContent = timeLeft;
   document.getElementById('timerBox').classList.toggle('low', timeLeft <= 5);
   document.getElementById('prog').style.width = (timeLeft/TIME_LIMIT*100) + "%";
 }
-
 function pointsForTime(){
   const used = TIME_LIMIT - timeLeft;
-  const pts = Math.round(MAX_POINTS * (1 - (used / TIME_LIMIT) / 2));
-  return Math.max(500, pts);
+  return Math.max(500, Math.round(MAX_POINTS * (1 - (used / TIME_LIMIT) / 2)));
 }
 
 function answer(btn, ok, box){
   if(answered) return;
-  answered = true;
-  clearInterval(tick);
-  box.classList.add('locked');
-  revealCorrect(box);
+  answered = true; clearInterval(tick);
+  box.classList.add('locked'); revealCorrect(box);
   btn.classList.add(ok ? 'right' : 'wrong');
   const fb = document.getElementById('feedback');
-  if(ok){
-    const gained = pointsForTime();
-    score += gained; correctCount++;
-    fb.textContent = "✅ ¡Correcto! +" + gained;
-    showGain("+" + gained);
-  } else {
-    fb.textContent = "❌ ¡Casi!";
-  }
+  if(ok){ const g = pointsForTime(); score += g; correctCount++; fb.textContent = "✅ ¡Correcto! +" + g; showGain("+"+g); }
+  else { fb.textContent = "❌ ¡Casi!"; }
   document.getElementById('score').textContent = "🏆 " + score;
   setTimeout(nextQuestion, FEEDBACK_MS);
 }
-
 function timeUp(){
-  if(answered) return;
-  answered = true;
-  const box = document.getElementById('opts');
-  box.classList.add('locked');
-  revealCorrect(box);
+  if(answered) return; answered = true;
+  const box = document.getElementById('opts'); box.classList.add('locked'); revealCorrect(box);
   document.getElementById('feedback').textContent = "⌛ ¡Se acabó el tiempo!";
   setTimeout(nextQuestion, FEEDBACK_MS);
 }
-
 function revealCorrect(box){
   const data = Q[order[idx]];
   const correctText = data.options[data.correct];
-  [...box.children].forEach(c => {
-    if(c.querySelector('span:last-child').textContent === correctText) c.classList.add('right');
-  });
+  [...box.children].forEach(c => { if(c.querySelector('span:last-child').textContent === correctText) c.classList.add('right'); });
 }
-
 function showGain(txt){
-  const g = document.createElement('div');
-  g.className = 'gain'; g.textContent = txt;
-  document.getElementById('question').appendChild(g);
-  setTimeout(()=> g.remove(), 1000);
+  const g = document.createElement('div'); g.className = 'gain'; g.textContent = txt;
+  document.getElementById('question').appendChild(g); setTimeout(()=> g.remove(), 1000);
 }
-
-function nextQuestion(){
-  idx++;
-  if(idx >= Q.length) showEnd();
-  else renderQuestion();
-}
+function nextQuestion(){ idx++; if(idx >= Q.length) showEnd(); else renderQuestion(); }
 
 function showEnd(){
-  clearInterval(tick);
-  show('end');
+  clearInterval(tick); show('end');
   const total = Q.length;
+  lastQuizId = currentQuiz.id;
   document.getElementById('finalScore').textContent = score;
   document.getElementById('finalCorrect').textContent = correctCount + " / " + total + " correctas";
   const pct = correctCount/total;
@@ -378,7 +415,65 @@ function showEnd(){
   else { emoji="📚"; msg="A repasar el material y volver a intentar."; }
   document.getElementById('endEmoji').textContent = emoji;
   document.getElementById('finalMsg').textContent = msg;
+  saveScore(total);
 }
+
+/* ---------- FIREBASE: guardar puntaje ---------- */
+function saveScore(total){
+  const el = document.getElementById('saveState');
+  const name = localStorage.getItem("algoPlayerName") || "Anónimo";
+  if(!window.fb || !window.fb.ready){
+    el.textContent = "⚠️ Ranking no disponible (Firebase sin configurar).";
+    return;
+  }
+  el.textContent = "Guardando en el ranking…";
+  window.fb.saveScore(currentQuiz.id, { name, playerId, score, correct: correctCount, total })
+    .then(()=> el.textContent = "✅ Puntaje guardado en el ranking.")
+    .catch(err => el.textContent = "⚠️ No se pudo guardar (" + err.message + ").");
+}
+
+/* ---------- RANKING ---------- */
+function openLeaderboard(quizId){
+  const id = quizId || (currentQuiz ? currentQuiz.id : QUIZZES[0].id);
+  show('leaderboard');
+  renderSeg(id);
+  watchBoard(id);
+}
+function renderSeg(activeId){
+  const seg = document.getElementById('lbSeg'); seg.innerHTML = '';
+  QUIZZES.filter(q=>!q.locked).forEach(quiz=>{
+    const b = document.createElement('button');
+    b.textContent = quiz.emoji + " " + quiz.title;
+    b.className = quiz.id === activeId ? 'on' : '';
+    b.onclick = ()=>{ renderSeg(quiz.id); watchBoard(quiz.id); };
+    seg.appendChild(b);
+  });
+}
+function watchBoard(quizId){
+  if(lbUnsub){ lbUnsub(); lbUnsub = null; }
+  const list = document.getElementById('lbList');
+  if(!window.fb || !window.fb.ready){
+    list.innerHTML = '<div class="lbempty">El ranking necesita Firebase configurado.<br>Mientras tanto, los puntajes no se comparten.</div>';
+    return;
+  }
+  list.innerHTML = '<div class="lbempty">Cargando ranking…</div>';
+  lbUnsub = window.fb.watchTop(quizId, rows => {
+    if(!rows.length){ list.innerHTML = '<div class="lbempty">Todavía no hay puntajes.<br>¡Sé el primero en jugar! 🚀</div>'; return; }
+    const medals = ["🥇","🥈","🥉"];
+    list.innerHTML = '';
+    rows.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.className = 'lbrow' + (r.playerId === playerId ? ' me' : '');
+      row.innerHTML =
+        '<span class="lb-pos">' + (medals[i] || (i+1)) + '</span>' +
+        '<span class="lb-name">' + escapeHtml(r.name || "Anónimo") + '</span>' +
+        '<span class="lb-score">' + (r.score||0) + '</span>';
+      list.appendChild(row);
+    });
+  });
+}
+function leaveLeaderboard(){ if(lbUnsub){ lbUnsub(); lbUnsub = null; } show('menu'); }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
