@@ -8,17 +8,14 @@
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root { --rojo:#e21b3c; --azul:#1368ce; --amar:#d89e00; --verde:#26890c; --bg1:#46178f; --bg2:#7b2ff7; }
   html, body { height: 100%; }
-  body {
-    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    background: linear-gradient(160deg, var(--bg1), var(--bg2));
-    color: #fff; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden;
-  }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: linear-gradient(160deg, var(--bg1), var(--bg2)); color: #fff; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
   .wrap { flex: 1; display: flex; flex-direction: column; padding: 18px; max-width: 600px; margin: 0 auto; width: 100%; }
   .screen { display: none; flex: 1; flex-direction: column; animation: fade .25s ease; }
   .screen.active { display: flex; }
   @keyframes fade { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform:none;} }
   @keyframes pop { 0%{transform:scale(.6);opacity:0;} 60%{transform:scale(1.15);} 100%{transform:scale(1);opacity:1;} }
   @keyframes floatUp { from{transform:translateY(0);opacity:1;} to{transform:translateY(-40px);opacity:0;} }
+  @keyframes pulse { from{transform:scale(1);} to{transform:scale(1.08);} }
 
   .center { justify-content: center; align-items: center; text-align: center; gap: 14px; }
   h1 { font-size: 1.9rem; line-height: 1.15; text-shadow: 0 3px 0 rgba(0,0,0,.25); }
@@ -29,28 +26,35 @@
   .btnghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.6); border-radius: 14px; font-size: 1rem; font-weight: 700; padding: 12px 22px; cursor: pointer; }
   .btnghost:active { background: rgba(255,255,255,.12); }
   .nameinput { width: 100%; max-width: 320px; border: none; border-radius: 12px; padding: 14px 16px; font-size: 1.1rem; font-weight: 700; text-align: center; color: #1c1c28; }
+  .formcol { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
+  .errmsg { font-size: .9rem; color: #ffd400; font-weight: 800; min-height: 20px; }
+  .banner { text-align: center; font-weight: 800; background: rgba(0,0,0,.2); border-radius: 99px; padding: 6px 16px; margin-bottom: 14px; align-self: center; }
 
-  /* MENÚ */
-  .menuhead { text-align: center; margin: 8px 0 20px; }
+  .menuhead { text-align: center; margin: 8px 0 16px; }
   .menuhead .emoji { display:block; }
   .quizlist { display: flex; flex-direction: column; gap: 14px; }
   .quizcard { display: flex; align-items: center; gap: 14px; text-align: left; background: rgba(255,255,255,.97); color: #1c1c28; border: none; border-radius: 16px; padding: 16px; cursor: pointer; width: 100%; box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s; }
   .quizcard:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
-  .quizcard.locked { opacity: .6; cursor: default; }
   .qc-emoji { font-size: 2.2rem; flex-shrink: 0; }
   .qc-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
   .qc-title { font-size: 1.15rem; font-weight: 900; line-height: 1.1; }
   .qc-sub { font-size: .85rem; color: #555; line-height: 1.2; }
   .qc-arrow { font-size: 1.3rem; color: var(--bg1); flex-shrink: 0; }
 
-  /* HEADER JUEGO */
+  .tcourse { background: rgba(255,255,255,.97); color:#1c1c28; border-radius:16px; padding:16px; margin-bottom:12px; box-shadow:0 4px 0 rgba(0,0,0,.2); }
+  .tc-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; }
+  .tc-name { font-weight:900; font-size:1.15rem; }
+  .tc-status { font-size:.82rem; font-weight:800; color:#999; white-space:nowrap; }
+  .tc-status.on { color: var(--verde); }
+  .tc-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .tc-actions .btn { font-size:.95rem; padding:10px 16px; box-shadow:0 4px 0 rgba(0,0,0,.2); }
+  .tc-actions .btnghost { color:#46178f; border-color:#46178f; }
+
   .top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 10px; font-size: 1.05rem; }
   .timer { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.22); padding: 4px 12px; border-radius: 99px; }
   .timer.low { background: var(--rojo); animation: pulse .5s infinite alternate; }
-  @keyframes pulse { from{transform:scale(1);} to{transform:scale(1.08);} }
   .bar { height: 8px; background: rgba(255,255,255,.25); border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
   .bar > i { display: block; height: 100%; background: #ffd400; width: 100%; }
-
   .q { background: rgba(255,255,255,.97); color: #1c1c28; border-radius: 16px; padding: 20px 18px; font-size: 1.25rem; font-weight: 800; text-align: center; min-height: 110px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(0,0,0,.2); margin-bottom: 16px; position: relative; }
   .gain { position: absolute; top: -10px; right: 14px; color: var(--verde); font-weight: 900; font-size: 1.5rem; animation: floatUp 1s ease forwards; }
   .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
@@ -61,19 +65,15 @@
   .opts.locked .opt { opacity: .4; }
   .opts.locked .opt.right { opacity: 1; outline: 4px solid #fff; }
   .opts.locked .opt.wrong { opacity: 1; outline: 4px solid #fff; filter: grayscale(.3); }
-
   .feedback { text-align: center; font-size: 1.3rem; font-weight: 800; margin-top: 14px; min-height: 30px; }
   .hidden { display: none !important; }
-
   .scorebig { font-size: 3.4rem; font-weight: 900; animation: pop .5s ease; }
   .msg { font-size: 1.2rem; opacity: .95; }
   .stat { font-size: 1rem; opacity: .9; }
-  .savestate { font-size: .85rem; opacity: .85; min-height: 18px; }
+  .savestate { font-size: .85rem; opacity: .9; min-height: 18px; }
   .capture { background: #ffd400; color: #1c1c28; font-weight: 800; font-size: 1rem; border-radius: 14px; padding: 14px 16px; margin: 6px 4px 4px; line-height: 1.35; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
   .endbtns { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
-
-  /* RANKING */
-  .lbhead { text-align: center; margin-bottom: 14px; }
+  .lbhead { text-align: center; margin-bottom: 10px; }
   .seg { display: flex; gap: 8px; margin-bottom: 14px; }
   .seg button { flex: 1; border: 2px solid rgba(255,255,255,.4); background: rgba(255,255,255,.1); color: #fff; font-weight: 800; font-size: .9rem; border-radius: 12px; padding: 10px 6px; cursor: pointer; }
   .seg button.on { background: #fff; color: var(--bg1); border-color: #fff; }
@@ -84,36 +84,81 @@
   .lb-name { flex: 1; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lb-score { font-weight: 900; color: var(--bg1); }
   .lbempty { text-align: center; opacity: .85; padding: 20px; line-height: 1.5; }
-  .lb-del { border: none; background: var(--rojo); color:#fff; font-weight: 900; border-radius: 8px; width: 32px; height: 32px; font-size: 1rem; cursor: pointer; flex-shrink: 0; }
-  .adminbox { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-  #adminForm { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 8px; }
   footer { text-align: center; font-size: .75rem; opacity: .6; padding: 10px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- MENÚ -->
-  <section id="menu" class="screen active">
-    <div class="menuhead">
-      <span class="emoji">🎮</span>
-      <h1>Algo-Trivia</h1>
-      <div class="sub">Elegí un desafío</div>
-    </div>
-    <div id="quizList" class="quizlist"></div>
-    <div style="margin-top:18px; text-align:center;">
-      <button class="btnghost" onclick="openLeaderboard()">🏆 Ver ranking</button>
+  <!-- ROL -->
+  <section id="role" class="screen center active">
+    <div class="emoji">🎮</div>
+    <h1>Algo-Trivia</h1>
+    <div class="sub">¿Quién sos?</div>
+    <button class="btn" onclick="goStudent()">🎒 Soy alumno</button>
+    <button class="btnghost" onclick="show('teacherLogin')">🧑‍🏫 Soy profe</button>
+  </section>
+
+  <!-- ALUMNO: INGRESAR CÓDIGO -->
+  <section id="studentJoin" class="screen center">
+    <div class="emoji">🎒</div>
+    <h1>Ingresá al curso</h1>
+    <div class="formcol">
+      <input class="nameinput" id="joinName" maxlength="20" placeholder="Tu nombre" autocomplete="off">
+      <input class="nameinput" id="joinCode" maxlength="20" placeholder="Código del curso" autocomplete="off">
+      <div class="errmsg" id="joinMsg"></div>
+      <button class="btn" onclick="studentJoin()">Entrar</button>
+      <button class="btnghost" onclick="show('role')">← Volver</button>
     </div>
   </section>
 
-  <!-- PORTADA / NOMBRE -->
+  <!-- ALUMNO: ESPERANDO SESIÓN -->
+  <section id="studentWait" class="screen center">
+    <div class="emoji">⏳</div>
+    <div class="msg" id="waitText"></div>
+    <button class="btnghost" onclick="leaveStudent()">← Salir del curso</button>
+  </section>
+
+  <!-- PROFE: LOGIN -->
+  <section id="teacherLogin" class="screen center">
+    <div class="emoji">🧑‍🏫</div>
+    <h1>Acceso profe</h1>
+    <div class="formcol">
+      <input class="nameinput" id="tUser" placeholder="Usuario" autocomplete="off">
+      <input class="nameinput" id="tPass" type="password" placeholder="Contraseña" autocomplete="off">
+      <div class="errmsg" id="tLoginMsg"></div>
+      <button class="btn" onclick="teacherLogin()">Entrar</button>
+      <button class="btnghost" onclick="show('role')">← Volver</button>
+    </div>
+  </section>
+
+  <!-- PROFE: PANEL -->
+  <section id="teacherPanel" class="screen">
+    <div class="menuhead"><span class="emoji">🧑‍🏫</span><h1>Panel del profe</h1><div class="sub">Iniciá o terminá las sesiones por curso</div></div>
+    <div id="teacherCourses"></div>
+    <div style="margin-top:8px; text-align:center;">
+      <button class="btnghost" onclick="leaveTeacher()">🚪 Salir</button>
+    </div>
+  </section>
+
+  <!-- MENÚ DE JUEGOS (alumno) -->
+  <section id="menu" class="screen">
+    <div class="banner" id="courseBanner">👥</div>
+    <div class="menuhead"><span class="emoji">🎮</span><h1>Elegí un juego</h1></div>
+    <div id="quizList" class="quizlist"></div>
+    <div style="margin-top:16px; text-align:center; display:flex; flex-direction:column; gap:10px;">
+      <button class="btnghost" onclick="studentRanking()">🏆 Ver ranking</button>
+      <button class="btnghost" onclick="leaveStudent()">🚪 Salir del curso</button>
+    </div>
+  </section>
+
+  <!-- PORTADA -->
   <section id="start" class="screen center">
     <div class="emoji" id="startEmoji">🧠</div>
     <h1 id="startTitle">Quiz</h1>
     <div class="sub" id="startSub"></div>
-    <input class="nameinput" id="playerName" maxlength="20" placeholder="Escribí tu nombre" autocomplete="off">
     <button class="btn" onclick="beginQuiz()">¡Empezar!</button>
-    <button class="btnghost" onclick="show('menu')">← Volver al menú</button>
+    <button class="btnghost" onclick="show('menu')">← Volver</button>
   </section>
 
   <!-- JUEGO -->
@@ -139,98 +184,67 @@
     <div class="savestate" id="saveState"></div>
     <div class="capture">📸 Sacale una captura a esta pantalla y subila a los comentarios de la plataforma.</div>
     <div class="endbtns">
-      <button class="btn" onclick="openLeaderboard(lastQuizId)">🏆 Ver ranking</button>
+      <button class="btn" onclick="studentRanking()">🏆 Ver ranking</button>
       <button class="btnghost" onclick="replay()">Jugar de nuevo 🔁</button>
-      <button class="btnghost" onclick="show('menu')">🎮 Volver al menú</button>
+      <button class="btnghost" onclick="show('menu')">🎮 Volver a los juegos</button>
     </div>
   </section>
 
-  <!-- RANKING / LEADERBOARD -->
+  <!-- RANKING -->
   <section id="leaderboard" class="screen">
-    <div class="lbhead"><span class="emoji">🏆</span><h1>Ranking</h1></div>
+    <div class="lbhead"><span class="emoji">🏆</span><h1 id="lbTitle">Ranking</h1></div>
     <div class="seg" id="lbSeg"></div>
     <div class="lblist" id="lbList"></div>
-
-    <div class="adminbox">
-      <div id="adminLogin">
-        <button class="btnghost" onclick="toggleAdminForm()">🔐 Modo profe</button>
-        <div id="adminForm" class="hidden">
-          <input class="nameinput" id="admEmail" type="email" placeholder="Email de profe" autocomplete="username">
-          <input class="nameinput" id="admPass" type="password" placeholder="Contraseña" autocomplete="current-password">
-          <button class="btn" onclick="adminLogin()">Entrar</button>
-          <div class="savestate" id="admMsg"></div>
-        </div>
-      </div>
-      <div id="adminActive" class="hidden">
-        <div class="savestate" id="admWho"></div>
-        <button class="btnghost" onclick="adminLogout()">Salir de modo profe</button>
-      </div>
-    </div>
-
     <div style="margin-top:16px; text-align:center;">
-      <button class="btnghost" onclick="leaveLeaderboard()">🎮 Volver al menú</button>
+      <button class="btnghost" onclick="leaveLeaderboard()">← Volver</button>
     </div>
   </section>
 
 </div>
 <footer>Introducción a Algoritmos · Procesamiento Digital</footer>
 
-<!-- ============================================================= -->
-<!--  FIREBASE  —  PEGÁ ACÁ TUS CREDENCIALES (paso a paso abajo)   -->
-<!-- ============================================================= -->
+<!-- ============================ FIREBASE ============================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, limit, onSnapshot, serverTimestamp }
+  import { getFirestore, collection, addDoc, setDoc, doc, query, orderBy, limit, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  // 🔻🔻🔻  REEMPLAZA ESTE OBJETO POR EL DE TU PROYECTO FIREBASE  🔻🔻🔻
-  // const firebaseConfig = {
-  //   apiKey: "TU_API_KEY",
-  //   authDomain: "TU_PROYECTO.firebaseapp.com",
-  //   projectId: "TU_PROYECTO",
-  //   storageBucket: "TU_PROYECTO.appspot.com",
-  //   messagingSenderId: "TU_SENDER_ID",
-  //   appId: "TU_APP_ID"
-  // };
-  
   const firebaseConfig = {
-  apiKey: "AIzaSyCdOMyz2FRVENw8JOcqqWR_C6NaSouaZoo",
-  authDomain: "juegos-colegio.firebaseapp.com",
-  projectId: "juegos-colegio",
-  storageBucket: "juegos-colegio.firebasestorage.app",
-  messagingSenderId: "1070832774968",
-  appId: "1:1070832774968:web:f98d459f60d6afcb359bcd"
-};
-
-// (Firebase se inicializa más abajo, dentro del try)
-
-
-  // 🔺🔺🔺  ----------------------------------------------------  🔺🔺🔺
+    apiKey: "AIzaSyCdOMyz2FRVENw8JOcqqWR_C6NaSouaZoo",
+    authDomain: "juegos-colegio.firebaseapp.com",
+    projectId: "juegos-colegio",
+    storageBucket: "juegos-colegio.firebasestorage.app",
+    messagingSenderId: "1070832774968",
+    appId: "1:1070832774968:web:f98d459f60d6afcb359bcd"
+  };
 
   try {
-    if (firebaseConfig.apiKey === "TU_API_KEY") throw new Error("Firebase sin configurar");
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
     window.fb = {
       ready: true,
-      async saveScore(quizId, data) {
-        await addDoc(collection(db, "rankings", quizId, "scores"),
+      watchControl(courseId, cb) {
+        return onSnapshot(doc(db, "control", courseId),
+          s => cb(s.exists() ? s.data() : { active: false, sessionId: null }),
+          err => cb({ active: false, sessionId: null, error: err.code || err.message }));
+      },
+      startSession(courseId, sessionId) {
+        return setDoc(doc(db, "control", courseId), { active: true, sessionId, startedAt: serverTimestamp() });
+      },
+      endSession(courseId, sessionId) {
+        return setDoc(doc(db, "control", courseId), { active: false, sessionId }, { merge: true });
+      },
+      saveScore(courseId, sessionId, quizId, data) {
+        return addDoc(collection(db, "control", courseId, "runs", sessionId, quizId),
           { ...data, createdAt: serverTimestamp() });
       },
-      watchTop(quizId, cb) {
-        const qy = query(collection(db, "rankings", quizId, "scores"),
+      watchTop(courseId, sessionId, quizId, cb) {
+        const qy = query(collection(db, "control", courseId, "runs", sessionId, quizId),
           orderBy("score", "desc"), limit(20));
-        return onSnapshot(qy, snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-      },
-      deleteScore(quizId, id) {
-        return deleteDoc(doc(db, "rankings", quizId, "scores", id));
-      },
-      login(email, pass) { return signInWithEmailAndPassword(auth, email, pass); },
-      logout() { return signOut(auth); },
-      onAuth(cb) { return onAuthStateChanged(auth, cb); }
+        return onSnapshot(qy,
+          snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+          err => cb(null, err));
+      }
     };
   } catch (e) {
     window.fb = { ready: false, error: e.message };
@@ -239,69 +253,50 @@
 </script>
 
 <script>
+/* ====== CONFIG ====== */
+const COURSES = {
+  poroto: { id: "3roA", name: "3ro A" },
+  patata: { id: "3roB", name: "3ro B" },
+  patito: { id: "3roC", name: "3ro C" }
+};
+const TEACHER_USER = "profe";
+const TEACHER_PASS = "profe";
+
 const QUIZZES = [
   {
-    id: "trivia1",
-    emoji: "🧠",
-    title: "Algo-Trivia · Nivel 1",
+    id: "trivia1", emoji: "🧠", title: "Algo-Trivia · Nivel 1",
     subtitle: "Qué es un algoritmo, pseudocódigo y secuencias",
     questions: [
-      { q: "¿Cuántas formas principales de representar un algoritmo hay?",
-        options: ["Dos", "Tres", "Cuatro", "Cinco"], correct: 1 },
-      { q: "¿Qué forma de representación puede ser ambigua?",
-        options: ["Pseudocódigo", "Diagrama de flujo", "Lenguaje natural", "Código real"], correct: 2 },
-      { q: "El pseudocódigo es un lenguaje de programación real.",
-        options: ["Verdadero", "Falso"], correct: 1 },
-      { q: "¿Cuándo se usa el pseudocódigo?",
-        options: ["Antes de programar", "Después de programar", "Durante la ejecución", "Nunca"], correct: 0 },
-      { q: "¿Cuál es una palabra clave típica del pseudocódigo?",
-        options: ["INICIO", "HOLA", "COLOR", "RÁPIDO"], correct: 0 },
-      { q: "En el pseudocódigo, ¿qué palabra marca el final?",
-        options: ["FIN", "STOP", "ALTO", "CHAU"], correct: 0 },
-      { q: "El lenguaje natural puede ser ambiguo.",
-        options: ["Verdadero", "Falso"], correct: 0 },
-      { q: "Una receta de cocina es un ejemplo de algoritmo.",
-        options: ["Verdadero", "Falso"], correct: 0 },
-      { q: "¿Qué forma de representación es la más accesible pero ambigua?",
-        options: ["Lenguaje natural", "Pseudocódigo", "Diagrama de flujo", "Código real"], correct: 0 },
-      { q: "En una estructura secuencial, ¿cómo se ejecutan los pasos?",
-        options: ["Uno tras otro, en orden", "Todos al mismo tiempo", "En orden al azar", "De abajo hacia arriba"], correct: 0 },
-      { q: "La estructura secuencial es la más simple de todas.",
-        options: ["Verdadero", "Falso"], correct: 0 },
-      { q: "En una estructura secuencial, ¿se repiten pasos?",
-        options: ["No", "Sí, siempre", "Solo el último", "Solo si hay error"], correct: 0 },
-      { q: "En una secuencia, cada paso se ejecuta exactamente...",
-        options: ["Una vez", "Dos veces", "Mil veces", "Cero veces"], correct: 0 },
-      { q: "En el ejemplo \"total ← precio + iva\", ¿qué guarda la variable total?",
-        options: ["El precio con IVA", "El precio sin IVA", "Solo el IVA", "El descuento"], correct: 0 }
+      { q: "¿Cuántas formas principales de representar un algoritmo hay?", options: ["Dos", "Tres", "Cuatro", "Cinco"], correct: 1 },
+      { q: "¿Qué forma de representación puede ser ambigua?", options: ["Pseudocódigo", "Diagrama de flujo", "Lenguaje natural", "Código real"], correct: 2 },
+      { q: "El pseudocódigo es un lenguaje de programación real.", options: ["Verdadero", "Falso"], correct: 1 },
+      { q: "¿Cuándo se usa el pseudocódigo?", options: ["Antes de programar", "Después de programar", "Durante la ejecución", "Nunca"], correct: 0 },
+      { q: "¿Cuál es una palabra clave típica del pseudocódigo?", options: ["INICIO", "HOLA", "COLOR", "RÁPIDO"], correct: 0 },
+      { q: "En el pseudocódigo, ¿qué palabra marca el final?", options: ["FIN", "STOP", "ALTO", "CHAU"], correct: 0 },
+      { q: "El lenguaje natural puede ser ambiguo.", options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "Una receta de cocina es un ejemplo de algoritmo.", options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "¿Qué forma de representación es la más accesible pero ambigua?", options: ["Lenguaje natural", "Pseudocódigo", "Diagrama de flujo", "Código real"], correct: 0 },
+      { q: "En una estructura secuencial, ¿cómo se ejecutan los pasos?", options: ["Uno tras otro, en orden", "Todos al mismo tiempo", "En orden al azar", "De abajo hacia arriba"], correct: 0 },
+      { q: "La estructura secuencial es la más simple de todas.", options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "En una estructura secuencial, ¿se repiten pasos?", options: ["No", "Sí, siempre", "Solo el último", "Solo si hay error"], correct: 0 },
+      { q: "En una secuencia, cada paso se ejecuta exactamente...", options: ["Una vez", "Dos veces", "Mil veces", "Cero veces"], correct: 0 },
+      { q: "En el ejemplo \"total ← precio + iva\", ¿qué guarda la variable total?", options: ["El precio con IVA", "El precio sin IVA", "Solo el IVA", "El descuento"], correct: 0 }
     ]
   },
   {
-    id: "detective",
-    emoji: "🕵️",
-    title: "Detective de Código",
+    id: "detective", emoji: "🕵️", title: "Detective de Código",
     subtitle: "Leé la línea y descubrí qué hace",
     questions: [
-      { q: "¿Qué hace la línea:  LEER numero ?",
-        options: ["Pide un dato al usuario", "Muestra un mensaje", "Suma dos números", "Termina el programa"], correct: 0 },
-      { q: "¿Qué hace la línea:  ESCRIBIR \"Hola\" ?",
-        options: ["Muestra un mensaje", "Pide un dato al usuario", "Borra todo", "Crea una variable"], correct: 0 },
-      { q: "En  iva ← precio * 0.21 , el símbolo ← significa...",
-        options: ["Asigna un valor", "Compara valores", "Resta", "Termina"], correct: 0 },
-      { q: "La línea  total ← precio + iva  realiza una suma.",
-        options: ["Verdadero", "Falso"], correct: 0 },
-      { q: "¿Qué calcula la línea  promedio ← suma / 3 ?",
-        options: ["El promedio de 3 valores", "La suma total", "El mayor de 3", "El resto de dividir"], correct: 0 },
-      { q: "En  SI numero > 0 ENTONCES , ¿qué es  \"> 0\" ?",
-        options: ["Una condición", "Una suma", "Un mensaje", "El final"], correct: 0 },
-      { q: "La línea  suma ← suma + nota  va acumulando valores.",
-        options: ["Verdadero", "Falso"], correct: 0 },
-      { q: "En  PARA i DESDE 1 HASTA 3 , ¿cuántas veces se repite?",
-        options: ["3 veces", "1 vez", "Infinitas", "Ninguna"], correct: 0 },
-      { q: "En  iva ← precio * 0.21 , ¿qué es  \"precio\" ?",
-        options: ["Una variable", "Una palabra clave", "Un texto", "El final"], correct: 0 },
-      { q: "La palabra ESCRIBIR se usa para mostrar datos (salida).",
-        options: ["Verdadero", "Falso"], correct: 0 }
+      { q: "¿Qué hace la línea:  LEER numero ?", options: ["Pide un dato al usuario", "Muestra un mensaje", "Suma dos números", "Termina el programa"], correct: 0 },
+      { q: "¿Qué hace la línea:  ESCRIBIR \"Hola\" ?", options: ["Muestra un mensaje", "Pide un dato al usuario", "Borra todo", "Crea una variable"], correct: 0 },
+      { q: "En  iva ← precio * 0.21 , el símbolo ← significa...", options: ["Asigna un valor", "Compara valores", "Resta", "Termina"], correct: 0 },
+      { q: "La línea  total ← precio + iva  realiza una suma.", options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "¿Qué calcula la línea  promedio ← suma / 3 ?", options: ["El promedio de 3 valores", "La suma total", "El mayor de 3", "El resto de dividir"], correct: 0 },
+      { q: "En  SI numero > 0 ENTONCES , ¿qué es  \"> 0\" ?", options: ["Una condición", "Una suma", "Un mensaje", "El final"], correct: 0 },
+      { q: "La línea  suma ← suma + nota  va acumulando valores.", options: ["Verdadero", "Falso"], correct: 0 },
+      { q: "En  PARA i DESDE 1 HASTA 3 , ¿cuántas veces se repite?", options: ["3 veces", "1 vez", "Infinitas", "Ninguna"], correct: 0 },
+      { q: "En  iva ← precio * 0.21 , ¿qué es  \"precio\" ?", options: ["Una variable", "Una palabra clave", "Un texto", "El final"], correct: 0 },
+      { q: "La palabra ESCRIBIR se usa para mostrar datos (salida).", options: ["Verdadero", "Falso"], correct: 0 }
     ]
   }
 ];
@@ -309,58 +304,135 @@ const QUIZZES = [
 const SYM = ["▲","◆","●","■"];
 const TIME_LIMIT = 20, MAX_POINTS = 1000, FEEDBACK_MS = 1600;
 
-// id de jugador estable (para resaltar mi fila en el ranking)
 let playerId = localStorage.getItem("algoPlayerId");
-if(!playerId){ playerId = "p" + Math.abs(hashStr(navigator.userAgent + performance.now())); localStorage.setItem("algoPlayerId", playerId); }
+if(!playerId){ playerId = "p" + Math.abs(hashStr(navigator.userAgent + Date.now())); localStorage.setItem("algoPlayerId", playerId); }
 
+let myCourse = null, mySessionId = null, isTeacher = false;
+let controlUnsub = null, teacherWatches = [], lbUnsub = null, lbCtx = null, lbReturn = "menu";
 let currentQuiz = null, Q = [], lastQuizId = "trivia1";
 let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
-let timeLeft = 0, tick = null, lbUnsub = null;
-let isAdmin = false, currentLbQuiz = null;
+let timeLeft = 0, tick = null;
 
 function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))|0; } return h; }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function activeScreen(){ const a = document.querySelector('.screen.active'); return a ? a.id : null; }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function fbReady(){ return window.fb && window.fb.ready; }
 
-/* ---------- MENÚ ---------- */
+/* ====== ALUMNO ====== */
+function goStudent(){ document.getElementById('joinName').value = localStorage.getItem("algoPlayerName") || ""; document.getElementById('joinCode').value = ""; document.getElementById('joinMsg').textContent = ""; show('studentJoin'); }
+function studentJoin(){
+  const name = document.getElementById('joinName').value.trim();
+  const code = document.getElementById('joinCode').value.trim().toLowerCase();
+  const msg = document.getElementById('joinMsg');
+  if(!name){ msg.textContent = "Escribí tu nombre."; return; }
+  const course = COURSES[code];
+  if(!course){ msg.textContent = "Código incorrecto. Probá de nuevo."; return; }
+  if(!fbReady()){ msg.textContent = "Sin conexión al servidor."; return; }
+  localStorage.setItem("algoPlayerName", name);
+  myCourse = course; mySessionId = null; msg.textContent = "";
+  startStudentWatch();
+  setWait("esperando"); show('studentWait');
+}
+function startStudentWatch(){
+  if(controlUnsub){ controlUnsub(); controlUnsub = null; }
+  controlUnsub = window.fb.watchControl(myCourse.id, onControl);
+}
+function onControl(ctrl){
+  const scr = activeScreen();
+  if(ctrl && ctrl.active && ctrl.sessionId){
+    mySessionId = ctrl.sessionId;
+    updateCourseBanner();
+    if(scr === 'studentWait'){ show('menu'); }
+  } else {
+    if(scr === 'menu' || scr === 'start' || scr === 'leaderboard'){ setWait("cerrada"); show('studentWait'); }
+    else if(scr === 'studentWait'){ setWait("cerrada"); }
+  }
+}
+function setWait(kind){
+  const t = document.getElementById('waitText');
+  if(kind === "esperando") t.innerHTML = "Esperando a que el profe inicie la sesión en <b>" + myCourse.name + "</b>…";
+  else t.innerHTML = "La sesión de <b>" + myCourse.name + "</b> está cerrada.<br>Esperá a que el profe inicie una nueva.";
+}
+function updateCourseBanner(){ if(myCourse) document.getElementById('courseBanner').textContent = "👥 " + myCourse.name; }
+function leaveStudent(){ if(controlUnsub){ controlUnsub(); controlUnsub = null; } myCourse = null; mySessionId = null; show('role'); }
+function studentRanking(){ if(myCourse && mySessionId) openLeaderboard(myCourse.id, mySessionId, myCourse.name, lastQuizId, 'menu'); }
+
+/* ====== PROFE ====== */
+function teacherLogin(){
+  const u = document.getElementById('tUser').value.trim();
+  const p = document.getElementById('tPass').value;
+  const msg = document.getElementById('tLoginMsg');
+  if(u === TEACHER_USER && p === TEACHER_PASS){
+    isTeacher = true; document.getElementById('tPass').value = ""; msg.textContent = "";
+    show('teacherPanel'); renderTeacherPanel();
+  } else { msg.textContent = "Usuario o contraseña incorrectos."; }
+}
+function renderTeacherPanel(){
+  clearTeacherWatches();
+  const wrap = document.getElementById('teacherCourses'); wrap.innerHTML = "";
+  Object.values(COURSES).forEach(course => {
+    const card = document.createElement('div'); card.className = "tcourse"; card.id = "tc-" + course.id;
+    card.innerHTML = '<div class="tc-top"><span class="tc-name">' + course.name + '</span><span class="tc-status">…</span></div><div class="tc-actions"></div>';
+    wrap.appendChild(card);
+    if(fbReady()) teacherWatches.push(window.fb.watchControl(course.id, ctrl => renderCourseCard(course, ctrl)));
+  });
+}
+function renderCourseCard(course, ctrl){
+  const card = document.getElementById("tc-" + course.id);
+  if(!card) return;
+  const active = !!(ctrl && ctrl.active);
+  card.querySelector('.tc-status').className = "tc-status" + (active ? " on" : "");
+  card.querySelector('.tc-status').textContent = active ? "🟢 Sesión activa" : "⚪ Sin sesión";
+  const acts = card.querySelector('.tc-actions'); acts.innerHTML = "";
+  const main = document.createElement('button'); main.className = "btn";
+  if(active){ main.textContent = "⏹ Terminar sesión"; main.onclick = () => endSession(course, ctrl.sessionId); }
+  else { main.textContent = "▶ Iniciar sesión"; main.onclick = () => startSession(course); }
+  acts.appendChild(main);
+  if(ctrl && ctrl.sessionId){
+    const rank = document.createElement('button'); rank.className = "btnghost"; rank.textContent = "🏆 Ver ranking";
+    rank.onclick = () => openLeaderboard(course.id, ctrl.sessionId, course.name, lastQuizId, 'teacher');
+    acts.appendChild(rank);
+  }
+}
+function startSession(course){
+  const sid = "s" + Date.now().toString(36) + Math.floor(Math.random()*1000);
+  window.fb.startSession(course.id, sid).catch(e => alert("Error: " + (e.code || e.message)));
+}
+function endSession(course, sid){
+  if(!confirm("¿Terminar la sesión de " + course.name + "?\nLos alumnos no podrán seguir jugando.")) return;
+  window.fb.endSession(course.id, sid).catch(e => alert("Error: " + (e.code || e.message)));
+}
+function clearTeacherWatches(){ teacherWatches.forEach(u => { try { u(); } catch(e){} }); teacherWatches = []; }
+function leaveTeacher(){ clearTeacherWatches(); isTeacher = false; show('role'); }
+
+/* ====== MENÚ DE JUEGOS ====== */
 function renderMenu(){
-  const list = document.getElementById('quizList');
-  list.innerHTML = '';
+  const list = document.getElementById('quizList'); list.innerHTML = "";
   QUIZZES.forEach((quiz, i) => {
-    const card = document.createElement('button');
-    card.className = 'quizcard' + (quiz.locked ? ' locked' : '');
-    card.innerHTML =
-      '<span class="qc-emoji">' + quiz.emoji + '</span>' +
-      '<span class="qc-text"><span class="qc-title">' + quiz.title + '</span>' +
-      '<span class="qc-sub">' + quiz.subtitle + '</span></span>' +
-      '<span class="qc-arrow">' + (quiz.locked ? '🔒' : '▶') + '</span>';
-    if(!quiz.locked) card.onclick = () => openQuiz(i);
+    const card = document.createElement('button'); card.className = "quizcard";
+    card.innerHTML = '<span class="qc-emoji">' + quiz.emoji + '</span><span class="qc-text"><span class="qc-title">' + quiz.title + '</span><span class="qc-sub">' + quiz.subtitle + '</span></span><span class="qc-arrow">▶</span>';
+    card.onclick = () => openQuiz(i);
     list.appendChild(card);
   });
 }
-
 function openQuiz(i){
-  currentQuiz = QUIZZES[i];
-  Q = currentQuiz.questions;
+  currentQuiz = QUIZZES[i]; Q = currentQuiz.questions;
   document.getElementById('startEmoji').textContent = currentQuiz.emoji;
   document.getElementById('startTitle').textContent = currentQuiz.title;
-  document.getElementById('startSub').textContent = Q.length + ' preguntas · ¡respondé rápido para sumar más puntos!';
-  document.getElementById('playerName').value = localStorage.getItem("algoPlayerName") || "";
+  document.getElementById('startSub').textContent = Q.length + " preguntas · ¡respondé rápido para sumar más puntos!";
   show('start');
 }
-
-function beginQuiz(){
-  const name = document.getElementById('playerName').value.trim();
-  if(!name){ alert("Escribí tu nombre para jugar 🙂"); return; }
-  localStorage.setItem("algoPlayerName", name);
-  order = shuffle([...Array(Q.length).keys()]);
-  idx = 0; score = 0; correctCount = 0;
-  show('game');
-  renderQuestion();
-}
-
 function replay(){ openQuiz(QUIZZES.indexOf(currentQuiz)); }
 
-/* ---------- JUEGO ---------- */
+/* ====== JUEGO ====== */
+function beginQuiz(){
+  if(!mySessionId){ alert("La sesión no está activa."); show('menu'); return; }
+  order = shuffle([...Array(Q.length).keys()]);
+  idx = 0; score = 0; correctCount = 0;
+  show('game'); renderQuestion();
+}
 function renderQuestion(){
   answered = false;
   const data = Q[order[idx]];
@@ -370,174 +442,77 @@ function renderQuestion(){
   document.getElementById('feedback').textContent = "";
   const opts = data.options.map((t,i)=>({t, ok: i===data.correct}));
   shuffle(opts);
-  const box = document.getElementById('opts');
-  box.className = 'opts'; box.innerHTML = '';
-  opts.forEach((o,i)=>{
-    const b = document.createElement('button');
-    b.className = 'opt o'+i;
-    b.innerHTML = '<span class="sym">'+SYM[i]+'</span><span>'+o.t+'</span>';
-    b.onclick = ()=> answer(b, o.ok, box);
-    box.appendChild(b);
-  });
+  const box = document.getElementById('opts'); box.className = 'opts'; box.innerHTML = '';
+  opts.forEach((o,i)=>{ const b = document.createElement('button'); b.className = 'opt o'+i; b.innerHTML = '<span class="sym">'+SYM[i]+'</span><span>'+o.t+'</span>'; b.onclick = ()=> answer(b, o.ok, box); box.appendChild(b); });
   startTimer();
 }
-
-function startTimer(){
-  timeLeft = TIME_LIMIT; updateTimer(); clearInterval(tick);
-  tick = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(tick); timeUp(); } }, 1000);
-}
-function updateTimer(){
-  document.getElementById('timer').textContent = timeLeft;
-  document.getElementById('timerBox').classList.toggle('low', timeLeft <= 5);
-  document.getElementById('prog').style.width = (timeLeft/TIME_LIMIT*100) + "%";
-}
-function pointsForTime(){
-  const used = TIME_LIMIT - timeLeft;
-  return Math.max(500, Math.round(MAX_POINTS * (1 - (used / TIME_LIMIT) / 2)));
-}
-
+function startTimer(){ timeLeft = TIME_LIMIT; updateTimer(); clearInterval(tick); tick = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(tick); timeUp(); } }, 1000); }
+function updateTimer(){ document.getElementById('timer').textContent = timeLeft; document.getElementById('timerBox').classList.toggle('low', timeLeft <= 5); document.getElementById('prog').style.width = (timeLeft/TIME_LIMIT*100) + "%"; }
+function pointsForTime(){ const used = TIME_LIMIT - timeLeft; return Math.max(500, Math.round(MAX_POINTS * (1 - (used / TIME_LIMIT) / 2))); }
 function answer(btn, ok, box){
-  if(answered) return;
-  answered = true; clearInterval(tick);
-  box.classList.add('locked'); revealCorrect(box);
-  btn.classList.add(ok ? 'right' : 'wrong');
+  if(answered) return; answered = true; clearInterval(tick);
+  box.classList.add('locked'); revealCorrect(box); btn.classList.add(ok ? 'right' : 'wrong');
   const fb = document.getElementById('feedback');
   if(ok){ const g = pointsForTime(); score += g; correctCount++; fb.textContent = "✅ ¡Correcto! +" + g; showGain("+"+g); }
   else { fb.textContent = "❌ ¡Casi!"; }
   document.getElementById('score').textContent = "🏆 " + score;
   setTimeout(nextQuestion, FEEDBACK_MS);
 }
-function timeUp(){
-  if(answered) return; answered = true;
-  const box = document.getElementById('opts'); box.classList.add('locked'); revealCorrect(box);
-  document.getElementById('feedback').textContent = "⌛ ¡Se acabó el tiempo!";
-  setTimeout(nextQuestion, FEEDBACK_MS);
-}
-function revealCorrect(box){
-  const data = Q[order[idx]];
-  const correctText = data.options[data.correct];
-  [...box.children].forEach(c => { if(c.querySelector('span:last-child').textContent === correctText) c.classList.add('right'); });
-}
-function showGain(txt){
-  const g = document.createElement('div'); g.className = 'gain'; g.textContent = txt;
-  document.getElementById('question').appendChild(g); setTimeout(()=> g.remove(), 1000);
-}
+function timeUp(){ if(answered) return; answered = true; const box = document.getElementById('opts'); box.classList.add('locked'); revealCorrect(box); document.getElementById('feedback').textContent = "⌛ ¡Se acabó el tiempo!"; setTimeout(nextQuestion, FEEDBACK_MS); }
+function revealCorrect(box){ const data = Q[order[idx]]; const correctText = data.options[data.correct]; [...box.children].forEach(c => { if(c.querySelector('span:last-child').textContent === correctText) c.classList.add('right'); }); }
+function showGain(txt){ const g = document.createElement('div'); g.className = 'gain'; g.textContent = txt; document.getElementById('question').appendChild(g); setTimeout(()=> g.remove(), 1000); }
 function nextQuestion(){ idx++; if(idx >= Q.length) showEnd(); else renderQuestion(); }
-
 function showEnd(){
   clearInterval(tick); show('end');
-  const total = Q.length;
-  lastQuizId = currentQuiz.id;
+  const total = Q.length; lastQuizId = currentQuiz.id;
   document.getElementById('finalScore').textContent = score;
   document.getElementById('finalCorrect').textContent = correctCount + " / " + total + " correctas";
-  const pct = correctCount/total;
-  let emoji, msg;
-  if(pct === 1){ emoji="🏆"; msg="¡Perfecto! Dominás el tema."; }
-  else if(pct >= 0.6){ emoji="🎉"; msg="¡Muy bien! Casi todo."; }
-  else if(pct >= 0.4){ emoji="💪"; msg="Vas bien, repasá un poco más."; }
-  else { emoji="📚"; msg="A repasar el material y volver a intentar."; }
+  const pct = correctCount/total; let emoji, m;
+  if(pct === 1){ emoji="🏆"; m="¡Perfecto! Dominás el tema."; }
+  else if(pct >= 0.6){ emoji="🎉"; m="¡Muy bien! Casi todo."; }
+  else if(pct >= 0.4){ emoji="💪"; m="Vas bien, repasá un poco más."; }
+  else { emoji="📚"; m="A repasar el material y volver a intentar."; }
   document.getElementById('endEmoji').textContent = emoji;
-  document.getElementById('finalMsg').textContent = msg;
+  document.getElementById('finalMsg').textContent = m;
   saveScore(total);
 }
-
-/* ---------- FIREBASE: guardar puntaje ---------- */
 function saveScore(total){
   const el = document.getElementById('saveState');
   const name = localStorage.getItem("algoPlayerName") || "Anónimo";
-  if(!window.fb || !window.fb.ready){
-    el.textContent = "⚠️ Ranking no disponible (Firebase sin configurar).";
-    return;
-  }
-  el.textContent = "Guardando en el ranking…";
-  window.fb.saveScore(currentQuiz.id, { name, playerId, score, correct: correctCount, total })
-    .then(()=> el.textContent = "✅ Puntaje guardado en el ranking.")
-    .catch(err => el.textContent = "⚠️ No se pudo guardar (" + err.message + ").");
+  if(!fbReady()){ el.textContent = "⚠️ Ranking no disponible."; return; }
+  if(!myCourse || !mySessionId){ el.textContent = "⚠️ Sin sesión activa."; return; }
+  el.textContent = "Guardando…";
+  window.fb.saveScore(myCourse.id, mySessionId, currentQuiz.id, { name, playerId, score, correct: correctCount, total })
+    .then(()=> el.textContent = "✅ Guardado en el ranking de " + myCourse.name + ".")
+    .catch(err => el.textContent = "⚠️ No se pudo guardar (" + (err.code || err.message) + ").");
 }
 
-/* ---------- RANKING ---------- */
-function openLeaderboard(quizId){
-  const id = quizId || (currentQuiz ? currentQuiz.id : QUIZZES[0].id);
+/* ====== RANKING ====== */
+function openLeaderboard(courseId, sessionId, courseName, quizId, returnTo){
+  lbReturn = returnTo || 'menu';
+  lbCtx = { courseId, sessionId };
+  document.getElementById('lbTitle').textContent = "Ranking · " + (courseName || "");
   show('leaderboard');
-  renderSeg(id);
-  watchBoard(id);
+  renderSeg(quizId || QUIZZES[0].id);
+  watchBoard(quizId || QUIZZES[0].id);
 }
-function renderSeg(activeId){
-  const seg = document.getElementById('lbSeg'); seg.innerHTML = '';
-  QUIZZES.filter(q=>!q.locked).forEach(quiz=>{
-    const b = document.createElement('button');
-    b.textContent = quiz.emoji + " " + quiz.title;
-    b.className = quiz.id === activeId ? 'on' : '';
-    b.onclick = ()=>{ renderSeg(quiz.id); watchBoard(quiz.id); };
-    seg.appendChild(b);
-  });
+function renderSeg(activeQ){
+  const seg = document.getElementById('lbSeg'); seg.innerHTML = "";
+  QUIZZES.forEach(quiz => { const b = document.createElement('button'); b.textContent = quiz.emoji + " " + quiz.title; b.className = quiz.id === activeQ ? 'on' : ''; b.onclick = () => { renderSeg(quiz.id); watchBoard(quiz.id); }; seg.appendChild(b); });
 }
 function watchBoard(quizId){
-  currentLbQuiz = quizId;
   if(lbUnsub){ lbUnsub(); lbUnsub = null; }
   const list = document.getElementById('lbList');
-  if(!window.fb || !window.fb.ready){
-    list.innerHTML = '<div class="lbempty">El ranking necesita Firebase configurado.<br>Mientras tanto, los puntajes no se comparten.</div>';
-    return;
-  }
+  if(!fbReady() || !lbCtx || !lbCtx.sessionId){ list.innerHTML = '<div class="lbempty">No hay sesión para mostrar.</div>'; return; }
   list.innerHTML = '<div class="lbempty">Cargando ranking…</div>';
-  lbUnsub = window.fb.watchTop(quizId, rows => {
-    if(!rows.length){ list.innerHTML = '<div class="lbempty">Todavía no hay puntajes.<br>¡Sé el primero en jugar! 🚀</div>'; return; }
-    const medals = ["🥇","🥈","🥉"];
-    list.innerHTML = '';
-    rows.forEach((r, i) => {
-      const row = document.createElement('div');
-      row.className = 'lbrow' + (r.playerId === playerId ? ' me' : '');
-      let html =
-        '<span class="lb-pos">' + (medals[i] || (i+1)) + '</span>' +
-        '<span class="lb-name">' + escapeHtml(r.name || "Anónimo") + '</span>' +
-        '<span class="lb-score">' + (r.score||0) + '</span>';
-      if(isAdmin && r.id) html += '<button class="lb-del" title="Eliminar intento">🗑</button>';
-      row.innerHTML = html;
-      if(isAdmin && r.id) row.querySelector('.lb-del').onclick = () => deleteEntry(quizId, r.id, r.name);
-      list.appendChild(row);
-    });
+  lbUnsub = window.fb.watchTop(lbCtx.courseId, lbCtx.sessionId, quizId, (rows, err) => {
+    if(err){ list.innerHTML = '<div class="lbempty">No se pudo cargar:<br>' + escapeHtml(err.code || err.message) + '</div>'; return; }
+    if(!rows.length){ list.innerHTML = '<div class="lbempty">Todavía no hay puntajes en esta sesión.<br>¡A jugar! 🚀</div>'; return; }
+    const medals = ["🥇","🥈","🥉"]; list.innerHTML = "";
+    rows.forEach((r, i) => { const row = document.createElement('div'); row.className = 'lbrow' + (r.playerId === playerId ? ' me' : ''); row.innerHTML = '<span class="lb-pos">' + (medals[i] || (i+1)) + '</span><span class="lb-name">' + escapeHtml(r.name || "Anónimo") + '</span><span class="lb-score">' + (r.score||0) + '</span>'; list.appendChild(row); });
   });
 }
-function leaveLeaderboard(){ if(lbUnsub){ lbUnsub(); lbUnsub = null; } show('menu'); }
-
-/* ---------- ADMIN (modo profe) ---------- */
-function toggleAdminForm(){ document.getElementById('adminForm').classList.toggle('hidden'); }
-function adminLogin(){
-  const email = document.getElementById('admEmail').value.trim();
-  const pass = document.getElementById('admPass').value;
-  const msg = document.getElementById('admMsg');
-  if(!email || !pass){ msg.textContent = "Completá email y contraseña."; return; }
-  if(!window.fb || !window.fb.ready){ msg.textContent = "Firebase no disponible."; return; }
-  msg.textContent = "Entrando…";
-  window.fb.login(email, pass)
-    .then(()=>{ msg.textContent = ""; document.getElementById('admPass').value = ""; })
-    .catch(e => msg.textContent = "Error: " + (e.code || e.message));
-}
-function adminLogout(){ if(window.fb && window.fb.ready) window.fb.logout(); }
-function deleteEntry(quizId, id, name){
-  if(!confirm('¿Eliminar el intento de "' + (name || "Anónimo") + '" del ranking?')) return;
-  window.fb.deleteScore(quizId, id).catch(e => alert("No se pudo eliminar: " + (e.code || e.message)));
-}
-function initAuth(){
-  if(!(window.fb && window.fb.ready && window.fb.onAuth)) return;
-  window.fb.onAuth(user => {
-    isAdmin = !!user;
-    document.getElementById('adminLogin').classList.toggle('hidden', isAdmin);
-    document.getElementById('adminActive').classList.toggle('hidden', !isAdmin);
-    if(isAdmin) document.getElementById('admWho').textContent = "👤 " + (user.email || "profe") + " — tocá 🗑 para eliminar intentos";
-    if(document.getElementById('leaderboard').classList.contains('active') && currentLbQuiz) watchBoard(currentLbQuiz);
-  });
-}
-window.addEventListener('fb-ready', initAuth);
-if(window.fb) initAuth();
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-}
+function leaveLeaderboard(){ if(lbUnsub){ lbUnsub(); lbUnsub = null; } show(lbReturn === 'teacher' ? 'teacherPanel' : 'menu'); }
 
 renderMenu();
 </script>

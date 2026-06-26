@@ -1,0 +1,35 @@
+REGLAS DE FIRESTORE — modelo de sesiones por curso
+==================================================
+
+Pegá esto en Firebase → Firestore Database → pestaña "Reglas" → Publicar.
+Reemplaza CUALQUIER regla anterior (incluida la de "deny-all" de la pausa).
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /control/{course} {
+      allow read: if true;
+      allow write: if true;
+      match /runs/{session}/{quiz}/{score} {
+        allow read: if true;
+        allow create: if request.resource.data.score is number
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() <= 30;
+        allow update, delete: if false;
+      }
+    }
+  }
+}
+
+Qué permite:
+- Leer el estado de la sesión y el ranking (todos).
+- Iniciar/terminar sesión (escribir en /control/{course}).
+- Guardar puntajes nuevos; nadie edita ni borra puntajes.
+
+NOTA DE SEGURIDAD:
+El "allow write" de /control es necesario porque el login de profe es del
+lado del navegador (usuario/contraseña en el código), no usa Firebase Auth.
+Eso significa que un alumno con conocimientos técnicos PODRÍA iniciar/terminar
+una sesión desde la consola del navegador. Para un uso de aula es aceptable;
+si más adelante querés blindarlo, se migra el login de profe a Firebase
+Authentication y se restringe /control a ese usuario.
