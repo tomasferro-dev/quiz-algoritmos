@@ -10,9 +10,11 @@
   html, body { height: 100%; }
   body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: linear-gradient(160deg, var(--bg1), var(--bg2)); color: #fff; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
   .wrap { flex: 1; display: flex; flex-direction: column; padding: 18px; max-width: 600px; margin: 0 auto; width: 100%; }
-  .screen { display: none; flex: 1; flex-direction: column; animation: fade .25s ease; }
+  .screen { display: none; flex: 1; flex-direction: column; animation: fade .25s ease, bob .6s ease; }
   .screen.active { display: flex; }
   @keyframes fade { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+  @keyframes bob { 0%{transform:translateY(0);} 22%{transform:translateY(-9px);} 45%{transform:translateY(0);} 65%{transform:translateY(-5px);} 82%{transform:translateY(0);} 92%{transform:translateY(-2px);} 100%{transform:translateY(0);} }
+  .bob { animation: bob .55s ease; }
   @keyframes pop { 0%{transform:scale(.6);opacity:0;} 60%{transform:scale(1.15);} 100%{transform:scale(1);opacity:1;} }
   @keyframes floatUp { from{transform:translateY(0);opacity:1;} to{transform:translateY(-40px);opacity:0;} }
   @keyframes pulse { from{transform:scale(1);} to{transform:scale(1.08);} }
@@ -35,6 +37,7 @@
   .quizlist { display: flex; flex-direction: column; gap: 14px; }
   .quizcard { display: flex; align-items: center; gap: 14px; text-align: left; background: rgba(255,255,255,.97); color: #1c1c28; border: none; border-radius: 16px; padding: 16px; cursor: pointer; width: 100%; box-shadow: 0 5px 0 rgba(0,0,0,.25); transition: transform .08s; }
   .quizcard:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+  .quizcard { animation: bob .5s ease; }
   .qc-emoji { font-size: 2.2rem; flex-shrink: 0; }
   .qc-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
   .qc-title { font-size: 1.15rem; font-weight: 900; line-height: 1.1; }
@@ -52,7 +55,7 @@
   .tc-right { display:flex; align-items:center; gap:8px; }
   .tc-menu { background:none; border:none; font-size:1.5rem; line-height:1; cursor:pointer; color:#46178f; padding:2px 8px; border-radius:8px; }
   .tc-menu:active { background: rgba(0,0,0,.08); }
-  .histrow { background: rgba(255,255,255,.96); color:#1c1c28; border-radius:12px; padding:12px 14px; box-shadow:0 3px 0 rgba(0,0,0,.2); margin-bottom:10px; }
+  .histrow { background: rgba(255,255,255,.96); color:#1c1c28; border-radius:12px; padding:12px 14px; box-shadow:0 3px 0 rgba(0,0,0,.2); margin-bottom:10px; animation: bob .5s ease; }
   .hr-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; }
   .hr-when { font-weight:800; }
   .hr-status { font-size:.8rem; font-weight:800; color:#888; white-space:nowrap; }
@@ -91,7 +94,7 @@
   .seg button { flex: 1; border: 2px solid rgba(255,255,255,.4); background: rgba(255,255,255,.1); color: #fff; font-weight: 800; font-size: .9rem; border-radius: 12px; padding: 10px 6px; cursor: pointer; }
   .seg button.on { background: #fff; color: var(--bg1); border-color: #fff; }
   .lblist { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-  .lbrow { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.95); color: #1c1c28; border-radius: 12px; padding: 12px 14px; box-shadow: 0 3px 0 rgba(0,0,0,.2); }
+  .lbrow { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.95); color: #1c1c28; border-radius: 12px; padding: 12px 14px; box-shadow: 0 3px 0 rgba(0,0,0,.2); animation: bob .5s ease; }
   .lbrow.me { outline: 3px solid #ffd400; }
   .lb-pos { font-weight: 900; font-size: 1.1rem; width: 34px; text-align: center; flex-shrink: 0; }
   .lb-name { flex: 1; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -199,7 +202,6 @@
     <div class="stat" id="finalCorrect">0 / 5 correctas</div>
     <div class="msg" id="finalMsg"></div>
     <div class="savestate" id="saveState"></div>
-    <div class="capture">📸 Sacale una captura a esta pantalla y subila a los comentarios de la plataforma.</div>
     <div class="endbtns">
       <button class="btn" onclick="studentRanking()">🏆 Ver ranking</button>
       <button class="btnghost" onclick="replay()">Jugar de nuevo 🔁</button>
@@ -422,10 +424,7 @@ function renderTeacherPanel(){
   Object.values(COURSES).forEach(course => {
     const card = document.createElement('div'); card.className = "tcourse"; card.id = "tc-" + course.id;
     card.innerHTML = '<div class="tc-top"><span class="tc-name">' + course.name + '</span>' +
-      '<span class="tc-right"><span class="tc-status">…</span>' +
-      '<button class="tc-menu" title="Historial de sesiones">⋮</button></span></div>' +
-      '<div class="tc-actions"></div>';
-    card.querySelector('.tc-menu').onclick = () => openHistory(course);
+      '<span class="tc-status">…</span></div><div class="tc-actions"></div>';
     wrap.appendChild(card);
     if(fbReady()) teacherWatches.push(window.fb.watchControl(course.id, ctrl => renderCourseCard(course, ctrl)));
   });
@@ -446,6 +445,9 @@ function renderCourseCard(course, ctrl){
     rank.onclick = () => openLeaderboard(course.id, ctrl.sessionId, course.name, lastQuizId, 'teacher');
     acts.appendChild(rank);
   }
+  const hist = document.createElement('button'); hist.className = "btnghost"; hist.textContent = "📂 Ver historial";
+  hist.onclick = () => openHistory(course);
+  acts.appendChild(hist);
 }
 function startSession(course){
   const sid = "s" + Date.now().toString(36) + Math.floor(Math.random()*1000);
