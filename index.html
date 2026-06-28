@@ -140,6 +140,10 @@
   .pod1 { height:230px; background:linear-gradient(#ffe680,#ffc400); } .pod2 { height:180px; background:linear-gradient(#eaeaea,#bfbfbf); } .pod3 { height:140px; background:linear-gradient(#f3c08a,#cd853f); }
   .suspense { text-align:center; font-size:1.4rem; font-weight:900; min-height:34px; margin-bottom:8px; animation: pulse .7s infinite alternate; }
   #hostBody, #playerBody { flex:1; display:flex; flex-direction:column; }
+  .result-ok, .result-bad { text-align:center; font-weight:900; font-size:1.7rem; color:#fff; border-radius:18px; padding:20px; margin-bottom:14px; box-shadow:0 5px 0 rgba(0,0,0,.25); animation: pop .4s ease; }
+  .result-ok { background: var(--verde); }
+  .result-bad { background: var(--rojo); }
+  .big-pts { font-size:2.6rem; margin-top:4px; }
 </style>
 </head>
 <body>
@@ -379,12 +383,15 @@
         const qy = query(collection(db, "live", pin, "players"), orderBy("total", "desc"));
         return onSnapshot(qy, snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))), () => cb([]));
       },
-      async submitLiveAnswer(pin, qIndex, pid, name, correct, points) {
-        await setDoc(doc(db, "live", pin, "rounds", String(qIndex), "answers", pid), { name, correct, points, at: serverTimestamp() }, { merge: true });
+      async submitLiveAnswer(pin, roundKey, pid, name, correct, points) {
+        await setDoc(doc(db, "live", pin, "rounds", roundKey, "answers", pid), { name, correct, points, at: serverTimestamp() }, { merge: true });
         if(points > 0) await setDoc(doc(db, "live", pin, "players", pid), { total: increment(points) }, { merge: true });
       },
-      watchLiveRound(pin, qIndex, cb) {
-        return onSnapshot(collection(db, "live", pin, "rounds", String(qIndex), "answers"), snap => cb(snap.size), () => cb(0));
+      watchLiveRound(pin, roundKey, cb) {
+        return onSnapshot(collection(db, "live", pin, "rounds", roundKey, "answers"), snap => cb(snap.size), () => cb(0));
+      },
+      async resetLivePlayers(pin, ids) {
+        for(const id of ids) await setDoc(doc(db, "live", pin, "players", id), { total: 0 }, { merge: true });
       }
     };
   } catch (e) {
@@ -456,6 +463,7 @@ const KEEP_SESSIONS = 4; // la sesión actual + 3 anteriores
 let livePin = null, liveState = null, livePlayers = [], liveQuiz = null;
 let liveUnsub = null, livePlayersUnsub = null, liveRoundUnsub = null, liveRoundCount = 0;
 let liveLocalQStart = 0, liveAnswered = false, liveLastQ = -2, livePodiumDone = false;
+let liveAnsweredQ = -1, liveLastCorrect = false, liveLastPoints = 0;
 const LIVE_TIME = 25, LIVE_MAX = 1000, LIVE_FLOOR = 300;
 let currentQuiz = null, Q = [], lastQuizId = "trivia1";
 let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
@@ -746,7 +754,7 @@ function liveCreateGame(quizId){
   liveIsHost = true; liveQuiz = quizById(quizId); livePin = genPin();
   livePodiumDone = false; liveLastQ = -2;
   const ord = shuffle([...Array(liveQuiz.questions.length).keys()]);
-  window.fb.createLive(livePin, { quizId, order: ord, phase: "lobby", qIndex: -1, optOrder: [], active: true })
+  window.fb.createLive(livePin, { quizId, order: ord, gen: 0, phase: "lobby", qIndex: -1, optOrder: [], active: true })
     .catch(e => alert("Error: " + (e.code || e.message)));
   startHostWatch(); show('liveHost');
 }
@@ -757,15 +765,16 @@ function startHostWatch(){
 }
 function maybeHostRoundWatch(){
   if(liveState && liveState.phase === "question"){
-    if(hostWatchedQ !== liveState.qIndex){
+    const key = (liveState.gen||0) + "_" + liveState.qIndex;
+    if(hostWatchedQ !== key){
       if(liveRoundUnsub){ liveRoundUnsub(); liveRoundUnsub = null; }
-      hostWatchedQ = liveState.qIndex; liveRoundCount = 0;
-      liveRoundUnsub = window.fb.watchLiveRound(livePin, liveState.qIndex, n => {
+      hostWatchedQ = key; liveRoundCount = 0;
+      liveRoundUnsub = window.fb.watchLiveRound(livePin, key, n => {
         liveRoundCount = n; renderHost();
         if(livePlayers.length > 0 && n >= livePlayers.length && liveState.phase === "question") hostShowResults();
       });
     }
-  } else { if(liveRoundUnsub){ liveRoundUnsub(); liveRoundUnsub = null; } hostWatchedQ = -2; }
+  } else { if(liveRoundUnsub){ liveRoundUnsub(); liveRoundUnsub = null; } hostWatchedQ = "-2"; }
 }
 function liveGoToQuestion(i){
   const q = liveQuiz.questions[liveState.order[i]];
@@ -778,6 +787,21 @@ function hostNext(){
   const last = liveState.qIndex >= liveState.order.length - 1;
   if(last) window.fb.updateLive(livePin, { phase: "podium" }); else liveGoToQuestion(liveState.qIndex + 1);
 }
+function hostExtraBtns(){
+  return '<div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">' +
+    '<button class="btnghost" onclick="hostEndNow()">🏁 Terminar ya</button>' +
+    '<button class="btnghost" onclick="hostRestart()">🔄 Reiniciar</button></div>';
+}
+function hostEndNow(){
+  if(confirm("¿Terminar la partida ahora y mostrar el podio con los puntajes actuales?")) window.fb.updateLive(livePin, { phase: "podium" });
+}
+function hostRestart(){
+  if(!confirm("¿Reiniciar la partida con los mismos jugadores?\nSe ponen todos los puntajes en 0.")) return;
+  const ord = shuffle([...Array(liveQuiz.questions.length).keys()]);
+  window.fb.resetLivePlayers(livePin, livePlayers.map(p => p.id))
+    .then(() => window.fb.updateLive(livePin, { gen: (liveState.gen||0) + 1, order: ord, phase: "lobby", qIndex: -1, optOrder: [] }))
+    .catch(e => alert("Error: " + (e.code || e.message)));
+}
 function hostOptsHtml(q, optOrder, reveal){
   const oo = (optOrder && optOrder.length) ? optOrder : q.options.map((_, i) => i);
   let h = '<div class="hopts">';
@@ -787,6 +811,7 @@ function hostOptsHtml(q, optOrder, reveal){
 function renderHost(){
   if(activeScreen() !== 'liveHost' || !liveState || !liveQuiz) return;
   const body = document.getElementById('hostBody'); const ph = liveState.phase;
+  if(ph !== "podium") livePodiumDone = false;
   if(ph === "lobby"){
     body.innerHTML =
       '<div class="menuhead"><span class="emoji">🎬</span><h1>' + escapeHtml(liveQuiz.title) + '</h1></div>' +
@@ -801,14 +826,14 @@ function renderHost(){
       '<div class="hcount">Pregunta ' + (liveState.qIndex+1) + ' / ' + liveState.order.length + '</div>' +
       '<div class="hq">' + escapeHtml(q.q) + '</div>' + hostOptsHtml(q, liveState.optOrder, false) +
       '<div class="hcount">' + liveRoundCount + ' / ' + livePlayers.length + ' respondieron</div>' +
-      '<div class="endbtns"><button class="btn big" onclick="hostShowResults()">⏭ Mostrar resultados</button></div>';
+      '<div class="endbtns"><button class="btn big" onclick="hostShowResults()">⏭ Mostrar resultados</button></div>' + hostExtraBtns();
   } else if(ph === "reveal"){
     const q = liveQuiz.questions[liveState.order[liveState.qIndex]];
     const last = liveState.qIndex >= liveState.order.length - 1;
     body.innerHTML =
       '<div class="hcount">Respuesta correcta</div><div class="hq">' + escapeHtml(q.q) + '</div>' + hostOptsHtml(q, liveState.optOrder, true) +
       '<div class="lbhead"><h1>🏆 Ranking</h1></div><div class="lblist" id="hostRank"></div>' +
-      '<div class="endbtns"><button class="btn big" onclick="hostNext()">' + (last ? '🏆 Ver podio' : 'Seguir →') + '</button></div>';
+      '<div class="endbtns"><button class="btn big" onclick="hostNext()">' + (last ? '🏆 Ver podio' : 'Seguir →') + '</button></div>' + hostExtraBtns();
     renderRankInto('hostRank', livePlayers, null);
   } else if(ph === "podium"){
     if(!livePodiumDone){ body.innerHTML = podiumShell(); livePodiumDone = true; runPodium(livePlayers, null); }
@@ -837,13 +862,14 @@ function joinLiveAsPlayer(pin, name){
 function renderPlayer(){
   if(activeScreen() !== 'livePlayer' || !liveState || !liveQuiz) return;
   const body = document.getElementById('playerBody'); const ph = liveState.phase;
+  if(ph !== "podium") livePodiumDone = false;
   if(ph === "lobby"){
     body.innerHTML = '<div style="margin:auto; text-align:center;"><div class="emoji">⏳</div><h1>¡Estás dentro!</h1><div class="sub">Esperando que el profe empiece…</div><div class="banner" style="margin-top:14px;">' + escapeHtml(localStorage.getItem("algoPlayerName") || "") + '</div></div>';
   } else if(ph === "question"){
     if(liveLastQ !== liveState.qIndex){ liveLastQ = liveState.qIndex; liveAnswered = false; liveLocalQStart = Date.now(); }
     const q = liveQuiz.questions[liveState.order[liveState.qIndex]];
     const head = '<div class="hcount">Pregunta ' + (liveState.qIndex+1) + ' / ' + liveState.order.length + '</div><div class="hq">' + escapeHtml(q.q) + '</div>';
-    if(liveAnswered){ body.innerHTML = head + '<div class="feedback">✅ ¡Respondido! Esperá al resto…</div>'; }
+    if(liveAnswered){ body.innerHTML = head + '<div class="feedback">👍 ¡Respuesta enviada!<br>Esperá a que respondan todos…</div>'; }
     else {
       body.innerHTML = head + '<div class="opts" id="pOpts"></div>';
       const oo = (liveState.optOrder && liveState.optOrder.length) ? liveState.optOrder : q.options.map((_, i) => i);
@@ -854,8 +880,15 @@ function renderPlayer(){
     const q = liveQuiz.questions[liveState.order[liveState.qIndex]];
     const me = livePlayers.find(p => p.id === playerId);
     const pos = livePlayers.findIndex(p => p.id === playerId) + 1;
+    const answered = (liveAnsweredQ === liveState.qIndex);
+    const resHtml = answered
+      ? (liveLastCorrect
+          ? '<div class="result-ok">✅ ¡Correcto!<div class="big-pts">+' + liveLastPoints + '</div></div>'
+          : '<div class="result-bad">❌ Incorrecto<div class="big-pts">+0</div></div>')
+      : '<div class="result-bad">⏱ No respondiste<div class="big-pts">+0</div></div>';
     body.innerHTML =
-      '<div class="hcount">Resultado</div><div class="hq" style="font-size:1.15rem;">' + escapeHtml(q.q) + '<br><span style="color:var(--verde)">✔ ' + escapeHtml(q.options[q.correct]) + '</span></div>' +
+      resHtml +
+      '<div class="hq" style="font-size:1.05rem;">' + escapeHtml(q.q) + '<br><span style="color:var(--verde)">✔ ' + escapeHtml(q.options[q.correct]) + '</span></div>' +
       '<div class="lbhead"><h1>🏆 Ranking</h1></div><div class="lblist" id="pRank"></div>' +
       (me ? '<div class="banner" style="margin-top:12px;">Vas ' + pos + '° · ' + (me.total||0) + ' pts</div>' : '');
     renderRankInto('pRank', livePlayers, playerId);
@@ -866,7 +899,9 @@ function renderPlayer(){
 function playerAnswer(correct){
   if(liveAnswered) return; liveAnswered = true;
   const pts = correct ? livePoints(Date.now() - liveLocalQStart) : 0;
-  window.fb.submitLiveAnswer(livePin, liveState.qIndex, playerId, localStorage.getItem("algoPlayerName") || "Anónimo", correct, pts).catch(()=>{});
+  liveAnsweredQ = liveState.qIndex; liveLastCorrect = correct; liveLastPoints = pts;
+  const key = (liveState.gen||0) + "_" + liveState.qIndex;
+  window.fb.submitLiveAnswer(livePin, key, playerId, localStorage.getItem("algoPlayerName") || "Anónimo", correct, pts).catch(()=>{});
   renderPlayer();
 }
 
@@ -893,7 +928,10 @@ function runPodium(players, myId){
     if(susp && top[0]) susp.textContent = "🎉 " + top[0].name + " 🎉";
     const rest = document.getElementById('podRest');
     if(rest && players.length > 3){ rest.innerHTML = ""; players.slice(3,10).forEach((p, i) => { const r = document.createElement('div'); r.className = 'lbrow' + (myId && p.id === myId ? ' me' : ''); r.innerHTML = '<span class="lb-pos">' + (i+4) + '</span><span class="lb-name">' + escapeHtml(p.name) + '</span><span class="lb-score">' + (p.total||0) + '</span>'; rest.appendChild(r); }); }
-    const btns = document.getElementById('podBtns'); if(btns) btns.innerHTML = '<button class="btnghost" onclick="leaveLive()">Terminar</button>';
+    const btns = document.getElementById('podBtns');
+    if(btns) btns.innerHTML = liveIsHost
+      ? '<button class="btn" onclick="hostRestart()">🔄 Jugar de nuevo (mismos jugadores)</button><button class="btnghost" onclick="leaveLive()">Cerrar partida</button>'
+      : '<button class="btnghost" onclick="leaveLive()">Salir</button>';
   }, 6000);
 }
 function leaveLive(){
