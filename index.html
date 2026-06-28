@@ -119,6 +119,27 @@
   .lb-score { font-weight: 900; color: var(--bg1); }
   .lbempty { text-align: center; opacity: .85; padding: 20px; line-height: 1.5; }
   footer { text-align: center; font-size: .75rem; opacity: .6; padding: 10px; }
+
+  /* ===== MODO EN VIVO ===== */
+  .pinbox { text-align:center; background: rgba(255,255,255,.97); color:#1c1c28; border-radius:18px; padding:18px; box-shadow:0 6px 0 rgba(0,0,0,.2); margin-bottom:16px; }
+  .pinbox .lbl { font-size:.9rem; font-weight:800; color:#666; }
+  .pinbox .pin { font-size:3.4rem; font-weight:900; letter-spacing:.18em; color:var(--bg1); line-height:1.1; }
+  .lobby-players { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px 0; }
+  .pchip { background:rgba(255,255,255,.95); color:#1c1c28; font-weight:800; border-radius:99px; padding:8px 14px; box-shadow:0 3px 0 rgba(0,0,0,.2); animation: pop .35s ease; }
+  .hq { background: rgba(255,255,255,.97); color:#1c1c28; border-radius:16px; padding:24px 18px; font-size:1.7rem; font-weight:900; text-align:center; margin-bottom:16px; box-shadow:0 6px 18px rgba(0,0,0,.2); }
+  .hcount { text-align:center; font-size:1.2rem; font-weight:800; margin-bottom:14px; }
+  .hopts { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  .hopt { border:none; border-radius:14px; color:#fff; font-weight:800; font-size:1.2rem; padding:26px 14px; min-height:90px; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 5px 0 rgba(0,0,0,.28); text-align:center; }
+  .hopt.dim { opacity:.35; } .hopt.win { outline:5px solid #fff; opacity:1; }
+  .big { font-size:1.15rem; padding:18px 26px; }
+  /* Podio */
+  .podium { display:flex; justify-content:center; align-items:flex-end; gap:10px; margin:20px 0; min-height:260px; }
+  .pod { width:30%; border-radius:14px 14px 0 0; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; padding:10px 6px; color:#1c1c28; font-weight:900; opacity:0; transform:translateY(30px); transition:all .6s cubic-bezier(.2,1.3,.4,1); box-shadow:0 -4px 16px rgba(0,0,0,.25); }
+  .pod.show { opacity:1; transform:translateY(0); }
+  .pod .medal { font-size:2.4rem; } .pod .pname { font-size:1rem; margin:4px 0; text-align:center; word-break:break-word; } .pod .ppts { font-size:.9rem; color:#333; }
+  .pod1 { height:230px; background:linear-gradient(#ffe680,#ffc400); } .pod2 { height:180px; background:linear-gradient(#eaeaea,#bfbfbf); } .pod3 { height:140px; background:linear-gradient(#f3c08a,#cd853f); }
+  .suspense { text-align:center; font-size:1.4rem; font-weight:900; min-height:34px; margin-bottom:8px; animation: pulse .7s infinite alternate; }
+  #hostBody, #playerBody { flex:1; display:flex; flex-direction:column; }
 </style>
 </head>
 <body>
@@ -153,10 +174,10 @@
   <!-- ALUMNO: INGRESAR CÓDIGO -->
   <section id="studentJoin" class="screen center">
     <div class="emoji">🎒</div>
-    <h1>Ingresá al curso</h1>
+    <h1>Ingresá a jugar</h1>
     <div class="formcol">
       <input class="nameinput" id="joinName" maxlength="20" placeholder="Tu nombre" autocomplete="off">
-      <input class="nameinput" id="joinCode" maxlength="20" placeholder="Código del curso" autocomplete="off">
+      <input class="nameinput" id="joinCode" maxlength="20" placeholder="Código del curso o PIN" autocomplete="off">
       <div class="errmsg" id="joinMsg"></div>
       <button class="btn" onclick="studentJoin()">Entrar</button>
       <button class="btnghost" onclick="show('role')">← Volver</button>
@@ -185,11 +206,32 @@
 
   <!-- PROFE: PANEL -->
   <section id="teacherPanel" class="screen">
-    <div class="menuhead"><span class="emoji">🧑‍🏫</span><h1>Panel del profe</h1><div class="sub">Iniciá o terminá las sesiones por curso</div></div>
+    <div class="menuhead"><span class="emoji">🧑‍🏫</span><h1>Panel del profe</h1><div class="sub">Modo individual (por curso) o juego en vivo grupal</div></div>
+    <button class="btn" style="margin-bottom:16px;" onclick="show('liveSetup')">🎬 Iniciar juego EN VIVO (grupal)</button>
+    <div class="sub" style="text-align:center; margin-bottom:8px;">— o sesiones individuales por curso —</div>
     <div id="teacherCourses"></div>
     <div style="margin-top:8px; text-align:center;">
       <button class="btnghost" onclick="leaveTeacher()">🚪 Salir</button>
     </div>
+  </section>
+
+  <!-- PROFE: ELEGIR JUEGO PARA EN VIVO -->
+  <section id="liveSetup" class="screen">
+    <div class="menuhead"><span class="emoji">🎬</span><h1>Juego en vivo</h1><div class="sub">Elegí el juego para proyectar en la tele</div></div>
+    <div id="liveQuizList" class="quizlist"></div>
+    <div style="margin-top:16px; text-align:center;">
+      <button class="btnghost" onclick="show('teacherPanel')">← Volver al panel</button>
+    </div>
+  </section>
+
+  <!-- HOST (PANTALLA TELE) -->
+  <section id="liveHost" class="screen">
+    <div id="hostBody"></div>
+  </section>
+
+  <!-- JUGADOR EN VIVO -->
+  <section id="livePlayer" class="screen">
+    <div id="playerBody"></div>
   </section>
 
   <!-- MENÚ DE JUEGOS (alumno) -->
@@ -269,7 +311,7 @@
 <!-- ============================ FIREBASE ============================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, getDocs, query, orderBy, limit, onSnapshot, serverTimestamp }
+  import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, getDocs, query, orderBy, limit, onSnapshot, serverTimestamp, increment }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -326,6 +368,23 @@
         return onSnapshot(qy,
           snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
           err => cb(null, err));
+      },
+      // ----- MODO EN VIVO -----
+      createLive(pin, data) { return setDoc(doc(db, "live", pin), { ...data, createdAt: serverTimestamp() }); },
+      updateLive(pin, data) { return setDoc(doc(db, "live", pin), data, { merge: true }); },
+      endLive(pin) { return setDoc(doc(db, "live", pin), { active: false }, { merge: true }); },
+      watchLive(pin, cb) { return onSnapshot(doc(db, "live", pin), s => cb(s.exists() ? s.data() : null), () => cb(null)); },
+      joinLive(pin, pid, name) { return setDoc(doc(db, "live", pin, "players", pid), { name, joinedAt: serverTimestamp(), total: increment(0) }, { merge: true }); },
+      watchLivePlayers(pin, cb) {
+        const qy = query(collection(db, "live", pin, "players"), orderBy("total", "desc"));
+        return onSnapshot(qy, snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))), () => cb([]));
+      },
+      async submitLiveAnswer(pin, qIndex, pid, name, correct, points) {
+        await setDoc(doc(db, "live", pin, "rounds", String(qIndex), "answers", pid), { name, correct, points, at: serverTimestamp() }, { merge: true });
+        if(points > 0) await setDoc(doc(db, "live", pin, "players", pid), { total: increment(points) }, { merge: true });
+      },
+      watchLiveRound(pin, qIndex, cb) {
+        return onSnapshot(collection(db, "live", pin, "rounds", String(qIndex), "answers"), snap => cb(snap.size), () => cb(0));
       }
     };
   } catch (e) {
@@ -393,6 +452,11 @@ let myCourse = null, mySessionId = null, isTeacher = false;
 let controlUnsub = null, teacherWatches = [], lbUnsub = null, lbCtx = null, lbReturn = "menu";
 let histUnsub = null, histCourse = null;
 const KEEP_SESSIONS = 4; // la sesión actual + 3 anteriores
+// modo en vivo
+let livePin = null, liveState = null, livePlayers = [], liveQuiz = null;
+let liveUnsub = null, livePlayersUnsub = null, liveRoundUnsub = null, liveRoundCount = 0;
+let liveLocalQStart = 0, liveAnswered = false, liveLastQ = -2, livePodiumDone = false;
+const LIVE_TIME = 25, LIVE_MAX = 1000, LIVE_FLOOR = 300;
 let currentQuiz = null, Q = [], lastQuizId = "trivia1";
 let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
 let timeLeft = 0, tick = null, qStart = 0;
@@ -411,11 +475,15 @@ function studentJoin(){
   const code = document.getElementById('joinCode').value.trim().toLowerCase();
   const msg = document.getElementById('joinMsg');
   if(!name){ msg.textContent = "Escribí tu nombre."; return; }
-  const course = COURSES[code];
-  if(!course){ msg.textContent = "Código incorrecto. Probá de nuevo."; return; }
   if(!fbReady()){ msg.textContent = "Sin conexión al servidor."; return; }
   localStorage.setItem("algoPlayerName", name);
-  myCourse = course; mySessionId = null; msg.textContent = "";
+  msg.textContent = "";
+  // ¿es un PIN de juego en vivo? (4-6 dígitos)
+  if(/^\d{4,6}$/.test(code)){ joinLiveAsPlayer(code, name); return; }
+  // ¿es un código de curso? (modo individual)
+  const course = COURSES[code];
+  if(!course){ msg.textContent = "Código o PIN incorrecto. Probá de nuevo."; return; }
+  myCourse = course; mySessionId = null;
   startStudentWatch();
   setWait("esperando"); show('studentWait');
 }
@@ -654,7 +722,190 @@ function leaveLeaderboard(){
   show(lbReturn === 'teacher' ? 'teacherPanel' : lbReturn === 'history' ? 'sessionHistory' : 'menu');
 }
 
+/* ====== MODO EN VIVO (grupal, estilo Kahoot) ====== */
+let liveIsHost = false, hostWatchedQ = -2;
+function quizById(id){ return QUIZZES.find(q => q.id === id); }
+function genPin(){ return String(Math.floor(1000 + Math.random()*9000)); }
+function livePoints(ms){ const frac = Math.min(1, ms/(LIVE_TIME*1000)); return Math.max(LIVE_FLOOR, Math.round(LIVE_MAX*(1 - frac/2))); }
+function teardownLiveWatches(){ [liveUnsub, livePlayersUnsub, liveRoundUnsub].forEach(u => { if(u) try{ u(); }catch(e){} }); liveUnsub = livePlayersUnsub = liveRoundUnsub = null; hostWatchedQ = -2; }
+
+/* ----- Setup (profe elige juego) ----- */
+function renderLiveSetup(){
+  const list = document.getElementById('liveQuizList'); if(!list) return; list.innerHTML = "";
+  QUIZZES.forEach(quiz => {
+    const card = document.createElement('button'); card.className = "quizcard";
+    card.innerHTML = '<span class="qc-emoji">' + quiz.emoji + '</span><span class="qc-text"><span class="qc-title">' + quiz.title + '</span><span class="qc-sub">' + quiz.questions.length + ' preguntas · en vivo</span></span><span class="qc-arrow">▶</span>';
+    card.onclick = () => liveCreateGame(quiz.id);
+    list.appendChild(card);
+  });
+}
+
+/* ----- HOST ----- */
+function liveCreateGame(quizId){
+  if(!fbReady()){ alert("Sin conexión."); return; }
+  liveIsHost = true; liveQuiz = quizById(quizId); livePin = genPin();
+  livePodiumDone = false; liveLastQ = -2;
+  const ord = shuffle([...Array(liveQuiz.questions.length).keys()]);
+  window.fb.createLive(livePin, { quizId, order: ord, phase: "lobby", qIndex: -1, optOrder: [], active: true })
+    .catch(e => alert("Error: " + (e.code || e.message)));
+  startHostWatch(); show('liveHost');
+}
+function startHostWatch(){
+  teardownLiveWatches();
+  liveUnsub = window.fb.watchLive(livePin, st => { liveState = st; if(!st) return; if(!liveQuiz) liveQuiz = quizById(st.quizId); renderHost(); maybeHostRoundWatch(); });
+  livePlayersUnsub = window.fb.watchLivePlayers(livePin, ps => { livePlayers = ps; renderHost(); });
+}
+function maybeHostRoundWatch(){
+  if(liveState && liveState.phase === "question"){
+    if(hostWatchedQ !== liveState.qIndex){
+      if(liveRoundUnsub){ liveRoundUnsub(); liveRoundUnsub = null; }
+      hostWatchedQ = liveState.qIndex; liveRoundCount = 0;
+      liveRoundUnsub = window.fb.watchLiveRound(livePin, liveState.qIndex, n => {
+        liveRoundCount = n; renderHost();
+        if(livePlayers.length > 0 && n >= livePlayers.length && liveState.phase === "question") hostShowResults();
+      });
+    }
+  } else { if(liveRoundUnsub){ liveRoundUnsub(); liveRoundUnsub = null; } hostWatchedQ = -2; }
+}
+function liveGoToQuestion(i){
+  const q = liveQuiz.questions[liveState.order[i]];
+  const optOrder = shuffle([...Array(q.options.length).keys()]);
+  window.fb.updateLive(livePin, { phase: "question", qIndex: i, optOrder });
+}
+function hostStart(){ liveGoToQuestion(0); }
+function hostShowResults(){ window.fb.updateLive(livePin, { phase: "reveal" }); }
+function hostNext(){
+  const last = liveState.qIndex >= liveState.order.length - 1;
+  if(last) window.fb.updateLive(livePin, { phase: "podium" }); else liveGoToQuestion(liveState.qIndex + 1);
+}
+function hostOptsHtml(q, optOrder, reveal){
+  const oo = (optOrder && optOrder.length) ? optOrder : q.options.map((_, i) => i);
+  let h = '<div class="hopts">';
+  oo.forEach((oi, k) => { let cls = "hopt o" + k; if(reveal) cls += (oi === q.correct) ? " win" : " dim"; h += '<div class="' + cls + '"><span>' + SYM[k] + '</span><span>' + escapeHtml(q.options[oi]) + '</span></div>'; });
+  return h + '</div>';
+}
+function renderHost(){
+  if(activeScreen() !== 'liveHost' || !liveState || !liveQuiz) return;
+  const body = document.getElementById('hostBody'); const ph = liveState.phase;
+  if(ph === "lobby"){
+    body.innerHTML =
+      '<div class="menuhead"><span class="emoji">🎬</span><h1>' + escapeHtml(liveQuiz.title) + '</h1></div>' +
+      '<div class="pinbox"><div class="lbl">PIN para entrar</div><div class="pin">' + livePin + '</div></div>' +
+      '<div class="sub" style="text-align:center;">Entran con 🎒 Soy alumno → escriben el PIN</div>' +
+      '<div class="lobby-players">' + (livePlayers.length ? livePlayers.map(p => '<span class="pchip">' + escapeHtml(p.name) + '</span>').join('') : '<span class="sub">Esperando jugadores…</span>') + '</div>' +
+      '<div class="endbtns"><button class="btn big" id="startBtn">▶ Empezar (' + livePlayers.length + ')</button><button class="btnghost" onclick="leaveLive()">✖ Cancelar</button></div>';
+    document.getElementById('startBtn').onclick = () => { if(livePlayers.length === 0 && !confirm("No hay jugadores aún. ¿Empezar igual?")) return; hostStart(); };
+  } else if(ph === "question"){
+    const q = liveQuiz.questions[liveState.order[liveState.qIndex]];
+    body.innerHTML =
+      '<div class="hcount">Pregunta ' + (liveState.qIndex+1) + ' / ' + liveState.order.length + '</div>' +
+      '<div class="hq">' + escapeHtml(q.q) + '</div>' + hostOptsHtml(q, liveState.optOrder, false) +
+      '<div class="hcount">' + liveRoundCount + ' / ' + livePlayers.length + ' respondieron</div>' +
+      '<div class="endbtns"><button class="btn big" onclick="hostShowResults()">⏭ Mostrar resultados</button></div>';
+  } else if(ph === "reveal"){
+    const q = liveQuiz.questions[liveState.order[liveState.qIndex]];
+    const last = liveState.qIndex >= liveState.order.length - 1;
+    body.innerHTML =
+      '<div class="hcount">Respuesta correcta</div><div class="hq">' + escapeHtml(q.q) + '</div>' + hostOptsHtml(q, liveState.optOrder, true) +
+      '<div class="lbhead"><h1>🏆 Ranking</h1></div><div class="lblist" id="hostRank"></div>' +
+      '<div class="endbtns"><button class="btn big" onclick="hostNext()">' + (last ? '🏆 Ver podio' : 'Seguir →') + '</button></div>';
+    renderRankInto('hostRank', livePlayers, null);
+  } else if(ph === "podium"){
+    if(!livePodiumDone){ body.innerHTML = podiumShell(); livePodiumDone = true; runPodium(livePlayers, null); }
+  }
+}
+
+/* ----- JUGADOR ----- */
+function joinLiveAsPlayer(pin, name){
+  liveIsHost = false; livePin = pin; liveQuiz = null; liveLastQ = -2; livePodiumDone = false;
+  let validated = false; teardownLiveWatches();
+  liveUnsub = window.fb.watchLive(pin, st => {
+    if(!st || !st.active){
+      if(!validated){ document.getElementById('joinMsg').textContent = "No hay una partida activa con ese PIN."; teardownLiveWatches(); livePin = null; }
+      else if(activeScreen() === 'livePlayer' && (!liveState || liveState.phase !== 'podium')){ alert("El profe terminó la partida."); leaveLive(); }
+      return;
+    }
+    if(!validated){
+      validated = true; window.fb.joinLive(pin, playerId, name);
+      livePlayersUnsub = window.fb.watchLivePlayers(pin, ps => { livePlayers = ps; if(activeScreen() === 'livePlayer' && liveState && (liveState.phase === 'reveal' || liveState.phase === 'podium')) renderPlayer(); });
+      show('livePlayer');
+    }
+    if(!liveQuiz) liveQuiz = quizById(st.quizId);
+    liveState = st; renderPlayer();
+  });
+}
+function renderPlayer(){
+  if(activeScreen() !== 'livePlayer' || !liveState || !liveQuiz) return;
+  const body = document.getElementById('playerBody'); const ph = liveState.phase;
+  if(ph === "lobby"){
+    body.innerHTML = '<div style="margin:auto; text-align:center;"><div class="emoji">⏳</div><h1>¡Estás dentro!</h1><div class="sub">Esperando que el profe empiece…</div><div class="banner" style="margin-top:14px;">' + escapeHtml(localStorage.getItem("algoPlayerName") || "") + '</div></div>';
+  } else if(ph === "question"){
+    if(liveLastQ !== liveState.qIndex){ liveLastQ = liveState.qIndex; liveAnswered = false; liveLocalQStart = Date.now(); }
+    const q = liveQuiz.questions[liveState.order[liveState.qIndex]];
+    const head = '<div class="hcount">Pregunta ' + (liveState.qIndex+1) + ' / ' + liveState.order.length + '</div><div class="hq">' + escapeHtml(q.q) + '</div>';
+    if(liveAnswered){ body.innerHTML = head + '<div class="feedback">✅ ¡Respondido! Esperá al resto…</div>'; }
+    else {
+      body.innerHTML = head + '<div class="opts" id="pOpts"></div>';
+      const oo = (liveState.optOrder && liveState.optOrder.length) ? liveState.optOrder : q.options.map((_, i) => i);
+      const box = document.getElementById('pOpts');
+      oo.forEach((oi, k) => { const b = document.createElement('button'); b.className = 'opt o' + k; b.innerHTML = '<span class="sym">' + SYM[k] + '</span><span>' + escapeHtml(q.options[oi]) + '</span>'; b.onclick = () => playerAnswer(oi === q.correct); box.appendChild(b); });
+    }
+  } else if(ph === "reveal"){
+    const q = liveQuiz.questions[liveState.order[liveState.qIndex]];
+    const me = livePlayers.find(p => p.id === playerId);
+    const pos = livePlayers.findIndex(p => p.id === playerId) + 1;
+    body.innerHTML =
+      '<div class="hcount">Resultado</div><div class="hq" style="font-size:1.15rem;">' + escapeHtml(q.q) + '<br><span style="color:var(--verde)">✔ ' + escapeHtml(q.options[q.correct]) + '</span></div>' +
+      '<div class="lbhead"><h1>🏆 Ranking</h1></div><div class="lblist" id="pRank"></div>' +
+      (me ? '<div class="banner" style="margin-top:12px;">Vas ' + pos + '° · ' + (me.total||0) + ' pts</div>' : '');
+    renderRankInto('pRank', livePlayers, playerId);
+  } else if(ph === "podium"){
+    if(!livePodiumDone){ body.innerHTML = podiumShell(); livePodiumDone = true; runPodium(livePlayers, playerId); }
+  }
+}
+function playerAnswer(correct){
+  if(liveAnswered) return; liveAnswered = true;
+  const pts = correct ? livePoints(Date.now() - liveLocalQStart) : 0;
+  window.fb.submitLiveAnswer(livePin, liveState.qIndex, playerId, localStorage.getItem("algoPlayerName") || "Anónimo", correct, pts).catch(()=>{});
+  renderPlayer();
+}
+
+/* ----- Ranking / Podio compartido ----- */
+function renderRankInto(elId, players, myId){
+  const el = document.getElementById(elId); if(!el) return;
+  if(!players.length){ el.innerHTML = '<div class="lbempty">Sin puntajes aún.</div>'; return; }
+  const medals = ["🥇","🥈","🥉"]; el.innerHTML = "";
+  players.slice(0,10).forEach((p, i) => { const row = document.createElement('div'); row.className = 'lbrow' + (myId && p.id === myId ? ' me' : ''); row.innerHTML = '<span class="lb-pos">' + (medals[i] || (i+1)) + '</span><span class="lb-name">' + escapeHtml(p.name || "Anónimo") + '</span><span class="lb-score">' + (p.total||0) + '</span>'; el.appendChild(row); });
+}
+function podiumShell(){
+  return '<div class="menuhead"><span class="emoji">🏆</span><h1>Podio final</h1></div>' +
+    '<div class="suspense" id="suspense">Redoble de tambores… 🥁</div>' +
+    '<div class="podium"><div class="pod pod2" id="pod2"></div><div class="pod pod1" id="pod1"></div><div class="pod pod3" id="pod3"></div></div>' +
+    '<div class="lblist" id="podRest"></div><div class="endbtns" id="podBtns"></div>';
+}
+function runPodium(players, myId){
+  const top = players.slice(0,3); const susp = document.getElementById('suspense');
+  const fill = (elId, p, medal) => { const el = document.getElementById(elId); if(el && p){ el.innerHTML = '<span class="medal">' + medal + '</span><span class="pname">' + escapeHtml(p.name) + '</span><span class="ppts">' + (p.total||0) + ' pts</span>'; el.classList.add('show'); } };
+  setTimeout(() => { if(susp) susp.textContent = "En el 3er puesto…"; fill('pod3', top[2], "🥉"); }, 1200);
+  setTimeout(() => { if(susp) susp.textContent = "En el 2do puesto…"; fill('pod2', top[1], "🥈"); }, 3000);
+  setTimeout(() => { if(susp) susp.textContent = "¡Y el GANADOR es…! 🎉"; fill('pod1', top[0], "🥇"); }, 4800);
+  setTimeout(() => {
+    if(susp && top[0]) susp.textContent = "🎉 " + top[0].name + " 🎉";
+    const rest = document.getElementById('podRest');
+    if(rest && players.length > 3){ rest.innerHTML = ""; players.slice(3,10).forEach((p, i) => { const r = document.createElement('div'); r.className = 'lbrow' + (myId && p.id === myId ? ' me' : ''); r.innerHTML = '<span class="lb-pos">' + (i+4) + '</span><span class="lb-name">' + escapeHtml(p.name) + '</span><span class="lb-score">' + (p.total||0) + '</span>'; rest.appendChild(r); }); }
+    const btns = document.getElementById('podBtns'); if(btns) btns.innerHTML = '<button class="btnghost" onclick="leaveLive()">Terminar</button>';
+  }, 6000);
+}
+function leaveLive(){
+  if(liveIsHost && livePin){ try{ window.fb.endLive(livePin); }catch(e){} }
+  teardownLiveWatches();
+  const wasHost = liveIsHost;
+  livePin = null; liveState = null; livePlayers = []; liveQuiz = null; livePodiumDone = false; liveLastQ = -2; liveIsHost = false;
+  show(wasHost ? 'teacherPanel' : 'role');
+}
+
 renderMenu();
+renderLiveSetup();
 </script>
 
 <script>
