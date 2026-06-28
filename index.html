@@ -49,7 +49,20 @@
   .tc-actions { display:flex; gap:8px; flex-wrap:wrap; }
   .tc-actions .btn { font-size:.95rem; padding:10px 16px; box-shadow:0 4px 0 rgba(0,0,0,.2); }
   .tc-actions .btnghost { color:#46178f; border-color:#46178f; }
+  .tc-right { display:flex; align-items:center; gap:8px; }
+  .tc-menu { background:none; border:none; font-size:1.5rem; line-height:1; cursor:pointer; color:#46178f; padding:2px 8px; border-radius:8px; }
+  .tc-menu:active { background: rgba(0,0,0,.08); }
+  .histrow { background: rgba(255,255,255,.96); color:#1c1c28; border-radius:12px; padding:12px 14px; box-shadow:0 3px 0 rgba(0,0,0,.2); margin-bottom:10px; }
+  .hr-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; }
+  .hr-when { font-weight:800; }
+  .hr-status { font-size:.8rem; font-weight:800; color:#888; white-space:nowrap; }
+  .hr-actions { display:flex; gap:8px; }
+  .hr-actions .btnghost { color:#46178f; border-color:#46178f; font-size:.9rem; padding:8px 12px; }
+  .hr-actions .danger { color:var(--rojo); border-color:var(--rojo); }
 
+  .gamebtns { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 8px; }
+  .minibtn { background: rgba(0,0,0,.22); border: none; color: #fff; font-weight: 700; font-size: .85rem; padding: 7px 12px; border-radius: 10px; cursor: pointer; }
+  .minibtn:active { background: rgba(0,0,0,.38); }
   .top { display: flex; justify-content: space-between; align-items: center; font-weight: 800; margin-bottom: 10px; font-size: 1.05rem; }
   .timer { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.22); padding: 4px 12px; border-radius: 99px; }
   .timer.low { background: var(--rojo); animation: pulse .5s infinite alternate; }
@@ -163,6 +176,10 @@
 
   <!-- JUEGO -->
   <section id="game" class="screen">
+    <div class="gamebtns">
+      <button class="minibtn" onclick="exitToMenu()">🏠 Menú</button>
+      <button class="minibtn" onclick="restartRound()">🔄 Reiniciar</button>
+    </div>
     <div class="top">
       <span id="counter">1 / 5</span>
       <span class="timer" id="timerBox">⏱️ <b id="timer">20</b></span>
@@ -200,13 +217,22 @@
     </div>
   </section>
 
+  <!-- HISTORIAL DE SESIONES (profe) -->
+  <section id="sessionHistory" class="screen">
+    <div class="lbhead"><span class="emoji">🗂️</span><h1 id="histTitle">Sesiones</h1></div>
+    <div id="histList" class="lblist"></div>
+    <div style="margin-top:16px; text-align:center;">
+      <button class="btnghost" onclick="leaveHistory()">← Volver al panel</button>
+    </div>
+  </section>
+
 </div>
 <footer>Introducción a Algoritmos · Procesamiento Digital</footer>
 
 <!-- ============================ FIREBASE ============================ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, setDoc, doc, query, orderBy, limit, onSnapshot, serverTimestamp }
+  import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, getDocs, query, orderBy, limit, onSnapshot, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -228,11 +254,30 @@
           s => cb(s.exists() ? s.data() : { active: false, sessionId: null }),
           err => cb({ active: false, sessionId: null, error: err.code || err.message }));
       },
-      startSession(courseId, sessionId) {
-        return setDoc(doc(db, "control", courseId), { active: true, sessionId, startedAt: serverTimestamp() });
+      async startSession(courseId, sessionId, quizIds, keep) {
+        await setDoc(doc(db, "control", courseId), { active: true, sessionId, startedAt: serverTimestamp() });
+        await setDoc(doc(db, "control", courseId, "sessions", sessionId), { startedAt: serverTimestamp(), active: true, endedAt: null });
+        // podar: dejar solo las "keep" sesiones más recientes
+        const snap = await getDocs(query(collection(db, "control", courseId, "sessions"), orderBy("startedAt", "desc")));
+        const extra = snap.docs.slice(keep);
+        for(const d of extra) await this.deleteSession(courseId, d.id, quizIds);
       },
-      endSession(courseId, sessionId) {
-        return setDoc(doc(db, "control", courseId), { active: false, sessionId }, { merge: true });
+      async endSession(courseId, sessionId) {
+        await setDoc(doc(db, "control", courseId), { active: false, sessionId }, { merge: true });
+        await setDoc(doc(db, "control", courseId, "sessions", sessionId), { active: false, endedAt: serverTimestamp() }, { merge: true });
+      },
+      async deleteSession(courseId, sessionId, quizIds) {
+        for(const qz of (quizIds || [])){
+          const s = await getDocs(collection(db, "control", courseId, "runs", sessionId, qz));
+          await Promise.all(s.docs.map(d => deleteDoc(d.ref)));
+        }
+        await deleteDoc(doc(db, "control", courseId, "sessions", sessionId));
+      },
+      watchSessions(courseId, cb) {
+        const qy = query(collection(db, "control", courseId, "sessions"), orderBy("startedAt", "desc"), limit(10));
+        return onSnapshot(qy,
+          snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+          err => cb(null, err));
       },
       saveScore(courseId, sessionId, quizId, data) {
         return addDoc(collection(db, "control", courseId, "runs", sessionId, quizId),
@@ -309,9 +354,11 @@ if(!playerId){ playerId = "p" + Math.abs(hashStr(navigator.userAgent + Date.now(
 
 let myCourse = null, mySessionId = null, isTeacher = false;
 let controlUnsub = null, teacherWatches = [], lbUnsub = null, lbCtx = null, lbReturn = "menu";
+let histUnsub = null, histCourse = null;
+const KEEP_SESSIONS = 4; // la sesión actual + 3 anteriores
 let currentQuiz = null, Q = [], lastQuizId = "trivia1";
 let order = [], idx = 0, score = 0, correctCount = 0, answered = false;
-let timeLeft = 0, tick = null;
+let timeLeft = 0, tick = null, qStart = 0;
 
 function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))|0; } return h; }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
@@ -374,7 +421,11 @@ function renderTeacherPanel(){
   const wrap = document.getElementById('teacherCourses'); wrap.innerHTML = "";
   Object.values(COURSES).forEach(course => {
     const card = document.createElement('div'); card.className = "tcourse"; card.id = "tc-" + course.id;
-    card.innerHTML = '<div class="tc-top"><span class="tc-name">' + course.name + '</span><span class="tc-status">…</span></div><div class="tc-actions"></div>';
+    card.innerHTML = '<div class="tc-top"><span class="tc-name">' + course.name + '</span>' +
+      '<span class="tc-right"><span class="tc-status">…</span>' +
+      '<button class="tc-menu" title="Historial de sesiones">⋮</button></span></div>' +
+      '<div class="tc-actions"></div>';
+    card.querySelector('.tc-menu').onclick = () => openHistory(course);
     wrap.appendChild(card);
     if(fbReady()) teacherWatches.push(window.fb.watchControl(course.id, ctrl => renderCourseCard(course, ctrl)));
   });
@@ -398,8 +449,50 @@ function renderCourseCard(course, ctrl){
 }
 function startSession(course){
   const sid = "s" + Date.now().toString(36) + Math.floor(Math.random()*1000);
-  window.fb.startSession(course.id, sid).catch(e => alert("Error: " + (e.code || e.message)));
+  window.fb.startSession(course.id, sid, QUIZZES.map(q => q.id), KEEP_SESSIONS).catch(e => alert("Error: " + (e.code || e.message)));
 }
+
+/* ====== HISTORIAL DE SESIONES (profe) ====== */
+function openHistory(course){
+  histCourse = course;
+  document.getElementById('histTitle').textContent = "Sesiones · " + course.name;
+  show('sessionHistory');
+  watchHistory(course.id);
+}
+function watchHistory(courseId){
+  if(histUnsub){ histUnsub(); histUnsub = null; }
+  const list = document.getElementById('histList');
+  if(!fbReady()){ list.innerHTML = '<div class="lbempty">Sin conexión.</div>'; return; }
+  list.innerHTML = '<div class="lbempty">Cargando sesiones…</div>';
+  histUnsub = window.fb.watchSessions(courseId, (rows, err) => {
+    if(err){ list.innerHTML = '<div class="lbempty">Error: ' + escapeHtml(err.code || err.message) + '</div>'; return; }
+    if(!rows.length){ list.innerHTML = '<div class="lbempty">Este curso todavía no tiene sesiones.</div>'; return; }
+    list.innerHTML = "";
+    rows.forEach(s => {
+      const card = document.createElement('div'); card.className = "histrow";
+      card.innerHTML = '<div class="hr-top"><span class="hr-when">' + fmtTime(s.startedAt) + '</span>' +
+        '<span class="hr-status">' + (s.active ? "🟢 Activa" : "⚪ Finalizada") + '</span></div>' +
+        '<div class="hr-actions"></div>';
+      const acts = card.querySelector('.hr-actions');
+      const rank = document.createElement('button'); rank.className = "btnghost"; rank.textContent = "🏆 Ranking";
+      rank.onclick = () => openLeaderboard(courseId, s.id, histCourse.name, lastQuizId, 'history');
+      const del = document.createElement('button'); del.className = "btnghost danger"; del.textContent = "🗑 Eliminar";
+      del.onclick = () => delSession(courseId, s.id);
+      acts.appendChild(rank); acts.appendChild(del);
+      list.appendChild(card);
+    });
+  });
+}
+function fmtTime(ts){
+  if(!ts || !ts.toDate) return "Recién creada";
+  try { return ts.toDate().toLocaleString('es-AR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }); }
+  catch(e){ return ""; }
+}
+function delSession(courseId, sessionId){
+  if(!confirm("¿Eliminar esta sesión y todos sus puntajes?\nNo se puede deshacer.")) return;
+  window.fb.deleteSession(courseId, sessionId, QUIZZES.map(q => q.id)).catch(e => alert("Error: " + (e.code || e.message)));
+}
+function leaveHistory(){ if(histUnsub){ histUnsub(); histUnsub = null; } show('teacherPanel'); }
 function endSession(course, sid){
   if(!confirm("¿Terminar la sesión de " + course.name + "?\nLos alumnos no podrán seguir jugando.")) return;
   window.fb.endSession(course.id, sid).catch(e => alert("Error: " + (e.code || e.message)));
@@ -446,9 +539,16 @@ function renderQuestion(){
   opts.forEach((o,i)=>{ const b = document.createElement('button'); b.className = 'opt o'+i; b.innerHTML = '<span class="sym">'+SYM[i]+'</span><span>'+o.t+'</span>'; b.onclick = ()=> answer(b, o.ok, box); box.appendChild(b); });
   startTimer();
 }
-function startTimer(){ timeLeft = TIME_LIMIT; updateTimer(); clearInterval(tick); tick = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(tick); timeUp(); } }, 1000); }
+function startTimer(){ timeLeft = TIME_LIMIT; qStart = Date.now(); updateTimer(); clearInterval(tick); tick = setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(tick); timeUp(); } }, 1000); }
 function updateTimer(){ document.getElementById('timer').textContent = timeLeft; document.getElementById('timerBox').classList.toggle('low', timeLeft <= 5); document.getElementById('prog').style.width = (timeLeft/TIME_LIMIT*100) + "%"; }
-function pointsForTime(){ const used = TIME_LIMIT - timeLeft; return Math.max(500, Math.round(MAX_POINTS * (1 - (used / TIME_LIMIT) / 2))); }
+function pointsForTime(){
+  // tiempo real transcurrido en ms -> puntaje fino (sin saltos de 25 en 25)
+  const elapsed = Date.now() - qStart;
+  const frac = Math.min(1, elapsed / (TIME_LIMIT * 1000));
+  return Math.max(400, Math.round(MAX_POINTS * (1 - frac / 2)));
+}
+function exitToMenu(){ clearInterval(tick); show('menu'); }
+function restartRound(){ clearInterval(tick); beginQuiz(); }
 function answer(btn, ok, box){
   if(answered) return; answered = true; clearInterval(tick);
   box.classList.add('locked'); revealCorrect(box); btn.classList.add(ok ? 'right' : 'wrong');
@@ -512,7 +612,10 @@ function watchBoard(quizId){
     rows.forEach((r, i) => { const row = document.createElement('div'); row.className = 'lbrow' + (r.playerId === playerId ? ' me' : ''); row.innerHTML = '<span class="lb-pos">' + (medals[i] || (i+1)) + '</span><span class="lb-name">' + escapeHtml(r.name || "Anónimo") + '</span><span class="lb-score">' + (r.score||0) + '</span>'; list.appendChild(row); });
   });
 }
-function leaveLeaderboard(){ if(lbUnsub){ lbUnsub(); lbUnsub = null; } show(lbReturn === 'teacher' ? 'teacherPanel' : 'menu'); }
+function leaveLeaderboard(){
+  if(lbUnsub){ lbUnsub(); lbUnsub = null; }
+  show(lbReturn === 'teacher' ? 'teacherPanel' : lbReturn === 'history' ? 'sessionHistory' : 'menu');
+}
 
 renderMenu();
 </script>
